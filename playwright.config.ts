@@ -18,7 +18,9 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // Playwright's WebKit cannot navigate to file:// while the context is offline, so WebKit relies on
+    // the http(s) route block in tests/e2e/helpers.ts (plus the build CSP) instead of offline mode.
+    { name: 'webkit', use: { ...devices['Desktop Safari'], offline: false } },
     // Installed Microsoft Edge (Windows/macOS dev machines); not used in CI.
     { name: 'msedge', use: { ...devices['Desktop Edge'], channel: 'msedge' } },
   ],

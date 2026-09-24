@@ -15,6 +15,8 @@ export const invalidFixture = (name: string) => resolve(root, 'tests/fixtures/in
  */
 export async function openApp(page: Page): Promise<string[]> {
   const external: string[] = [];
+  // Belt and braces with offline mode and the build CSP: any http(s) request is aborted.
+  await page.route(/^https?:/, (route) => route.abort());
   page.on('request', (request) => {
     if (!/^(file|data|blob):/.test(request.url())) external.push(request.url());
   });
