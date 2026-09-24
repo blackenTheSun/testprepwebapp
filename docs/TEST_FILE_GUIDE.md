@@ -11,7 +11,7 @@ A test file is one JSON object with complete, fixed problems. It contains no ran
 | Field | Required | Notes |
 | --- | --- | --- |
 | `apiVersion` | yes | Always `"guided-test-file.local/v1"` |
-| `id` | yes | Starts with a letter; letters, digits, `.` `_` `-` |
+| `id` | yes | Starts with a letter; letters, digits, `.` `_` `-`; 2–128 characters. The same rule applies to every `id` in the file, so one-letter ids like `"p"` are rejected. |
 | `version` | no | `"1.0.0"` style |
 | `title` | yes | Shown on the home screen |
 | `description` | no | |
@@ -110,7 +110,9 @@ Every visual needs `type` and `altText` (a plain sentence describing the picture
 
 `{ "type": "diagram2d/v1", "altText": "...", "viewBox": [minX, minY, width, height], "primitives": [...] }`
 
-Coordinates are in `viewBox` units; y increases downward. Every primitive may also have `label` (plain text) and `color` (CSS color, e.g. `"#c0392b"`).
+Coordinates are in `viewBox` units; y increases downward. Every primitive may also have `id`, `label` (plain text) and `color` (CSS color, e.g. `"#c0392b"`). Unknown fields are rejected.
+
+Labels are plain text with light formatting: Greek letter names become symbols (`tau_y` → τ_y, `gamma` → γ), `ohm`/`kohm` become Ω/kΩ, and `_x` or `_{xy}` is drawn as a subscript. Keep labels short. A voltage source's label goes to its left, or to its right if the left side would run off the diagram.
 
 | `kind` | Required fields |
 | --- | --- |
@@ -133,7 +135,13 @@ Coordinates are in `viewBox` units; y increases downward. Every primitive may al
   "objects": [ ... ] }
 ```
 
-Points and vectors are `[x, y, z]`. The scene is static: Amy cannot rotate it. Every object may also have `label`, `color`, and `highlight: true`.
+Points and vectors are `[x, y, z]`. The scene is static: Amy cannot rotate it. Every object may also have `id`, `label`, `color`, and `highlight: true`.
+
+Camera conventions:
+- **z is up.** `azimuthDeg` rotates the camera around the z axis, measured from +x toward +y; `elevationDeg` raises it above the x–y plane. The camera always looks at the origin. `azimuthDeg: -45, elevationDeg: 25` is a good default three-quarter view.
+- The scene is automatically fitted to the picture. `scale` zooms relative to that fit (`1` = fit, `0.8` = smaller).
+- `projection` is `"orthographic"` (default, recommended) or `"perspective"`.
+- Solids hide their back faces and nearer objects draw over farther ones. Labels are always drawn on top.
 
 | `kind` | Required fields |
 | --- | --- |

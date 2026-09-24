@@ -133,29 +133,31 @@ Unknown primitive kinds or missing fields are reported by validation. The render
 
 ## 4. Milestones
 
+Status and evidence for each milestone: [milestones/](milestones/). Decisions made during implementation: [DECISIONS.md](DECISIONS.md).
+
 ### M0 — File contract and shell
-- [ ] Extend CI (`.github/workflows/ci.yml`): typecheck, unit tests, build, Playwright E2E on `file://dist/index.html`, upload `index.html` as a build artifact
-- [ ] Vite + React + TS scaffold, single-file build, verify `dist/index.html` opens from `file://` in Chrome, Edge, Firefox, Safari
-- [ ] Contract types + tightened schema (per-kind primitives) + Ajv standalone + semantic checks + invalid fixtures
-- [ ] Home screen: Load Test (picker + drag-drop), Use Included Examples, problem list, invalid-file error view
-- [ ] Render one prompt with KaTeX (fonts inlined, offline)
-- [ ] `ARCHITECTURE.md`
+- [x] Extend CI (`.github/workflows/ci.yml`): typecheck, unit tests, build, Playwright E2E on `file://dist/index.html`, upload `index.html` as a build artifact
+- [x] Vite + React + TS scaffold, single-file build, `dist/index.html` opens from `file://` (verified in Chromium and Edge locally; Firefox/WebKit in CI)
+- [x] Contract types + tightened schema (per-kind primitives) + Ajv standalone + semantic checks + invalid fixtures
+- [x] Home screen: Load Test (picker + drag-drop), Use Included Examples, problem list, invalid-file error view
+- [x] Render one prompt with KaTeX (fonts inlined, offline)
+- [x] `ARCHITECTURE.md`
 
 ### M1 — Guided local runtime
-- [ ] Expression evaluator + tests (every op, arity, errors)
-- [ ] Variable store with stable ids, auto-naming, rename
-- [ ] Add Step: formula / basic math / conversion / final answer, all dropdown-driven
-- [ ] Timer (start/pause/finish)
-- [ ] Work list, reset problem, load-new-test replacement
-- [ ] Review: step-by-step and show-all, full teaching fields, ✓ matching, Download Attempt JSON
-- [ ] Authored-value recomputation warnings
+- [x] Expression evaluator + tests (every op, arity, errors)
+- [x] Variable store with stable ids, auto-naming, rename
+- [x] Add Step: formula / basic math / conversion / final answer, all dropdown-driven
+- [x] Timer (start/pause/finish)
+- [x] Work list, reset problem, load-new-test replacement
+- [x] Review: step-by-step and show-all, full teaching fields, ✓ matching, Download Attempt JSON
+- [x] Authored-value recomputation warnings
 
 ### M2 — Rendering and handoff
-- [ ] Diagram2D renderer (all 10 kinds) and Scene3D renderer (all 8 kinds)
-- [ ] Derivative action (symbolic + numeric variables)
-- [ ] Playwright E2E for AC1–AC10 against `file://dist/index.html` with network disabled
-- [ ] Cross-browser pass (Windows Chrome/Edge/Firefox; macOS Safari/Chrome if available)
-- [ ] `AMY_QUICKSTART.md`, final pass on `TEST_FILE_GUIDE.md`, README
+- [x] Diagram2D renderer (all 10 kinds) and Scene3D renderer (all 8 kinds)
+- [x] Derivative action (symbolic + numeric variables)
+- [x] Playwright E2E for AC1–AC10 against `file://dist/index.html` with network disabled
+- [~] Cross-browser pass: Chromium + Microsoft Edge verified locally; Firefox + WebKit run in CI (Linux). Real Windows Firefox and macOS Safari still need a manual check (see milestones/M2.md)
+- [x] `AMY_QUICKSTART.md`, final pass on `TEST_FILE_GUIDE.md`, README
 
 ## 5. Acceptance-criteria traceability
 
