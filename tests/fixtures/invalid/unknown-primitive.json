@@ -1,0 +1,776 @@
+{
+  "apiVersion": "guided-test-file.local/v1",
+  "id": "engr206-local-practice-01",
+  "version": "0.2.0",
+  "title": "ENGR 206 Local Guided Practice",
+  "description": "A complete offline test-file example. It is test content, not a parameterized problem generator.",
+  "formulaSheet": [
+    {
+      "id": "voltage_divider",
+      "title": "Voltage divider",
+      "category": "Resistive circuits",
+      "latex": "V_{out} = V_{in}\\frac{R_{load}}{R_{total}}",
+      "inputs": [
+        {
+          "id": "sourceVoltage",
+          "name": "Source voltage",
+          "symbol": "V_{in}",
+          "unit": "V",
+          "quantityType": "voltage"
+        },
+        {
+          "id": "loadResistance",
+          "name": "Load resistance",
+          "symbol": "R_{load}",
+          "unit": "ohm",
+          "quantityType": "resistance"
+        },
+        {
+          "id": "totalResistance",
+          "name": "Total series resistance",
+          "symbol": "R_{total}",
+          "unit": "ohm",
+          "quantityType": "resistance"
+        }
+      ],
+      "output": {
+        "id": "outputVoltage",
+        "name": "Output voltage",
+        "symbol": "V_{out}",
+        "unit": "V",
+        "quantityType": "voltage"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "multiply",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "sourceVoltage"
+            },
+            {
+              "op": "divide",
+              "args": [
+                {
+                  "op": "slot",
+                  "slot": "loadResistance"
+                },
+                {
+                  "op": "slot",
+                  "slot": "totalResistance"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The output is measured across one resistor in a simple series chain.",
+        "whyThisOperation": "The voltage divider formula gives the requested branch voltage once the source, selected resistor, and full series resistance are known.",
+        "commonMistakes": [
+          "Using the upper resistor as R_load when the target is across the lower resistor.",
+          "Mixing kilo-ohms and ohms before forming the ratio."
+        ]
+      }
+    },
+    {
+      "id": "ohms_law_voltage",
+      "title": "Ohm's law voltage form",
+      "category": "Resistive circuits",
+      "latex": "V = I R",
+      "inputs": [
+        {
+          "id": "current",
+          "name": "Current",
+          "symbol": "I",
+          "unit": "A",
+          "quantityType": "current"
+        },
+        {
+          "id": "resistance",
+          "name": "Resistance",
+          "symbol": "R",
+          "unit": "ohm",
+          "quantityType": "resistance"
+        }
+      ],
+      "output": {
+        "id": "voltage",
+        "name": "Voltage",
+        "symbol": "V",
+        "unit": "V",
+        "quantityType": "voltage"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "multiply",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "current"
+            },
+            {
+              "op": "slot",
+              "slot": "resistance"
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "A single resistor has a known current and resistance.",
+        "whyThisOperation": "Ohm's law turns the branch current and resistance into the branch voltage drop.",
+        "commonMistakes": [
+          "Multiplying a value in kilo-ohms by amps without converting units.",
+          "Using total source voltage when the question asks for a resistor voltage."
+        ]
+      }
+    },
+    {
+      "id": "passive_power",
+      "title": "Power using passive sign convention",
+      "category": "Power",
+      "latex": "p = v i",
+      "inputs": [
+        {
+          "id": "voltage",
+          "name": "Voltage across the element",
+          "symbol": "v",
+          "unit": "V",
+          "quantityType": "voltage"
+        },
+        {
+          "id": "current",
+          "name": "Current through the element",
+          "symbol": "i",
+          "unit": "A",
+          "quantityType": "current"
+        }
+      ],
+      "output": {
+        "id": "power",
+        "name": "Power",
+        "symbol": "p",
+        "unit": "W",
+        "quantityType": "power"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "multiply",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "voltage"
+            },
+            {
+              "op": "slot",
+              "slot": "current"
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The voltage across and current through the same element are known.",
+        "whyThisOperation": "Power is the product of the element voltage and current; the sign convention tells whether the element absorbs or supplies it.",
+        "commonMistakes": [
+          "Using a current from a different branch.",
+          "Ignoring the marked current direction when interpreting the sign."
+        ]
+      }
+    }
+  ],
+  "conversions": [
+    {
+      "id": "kohm_to_ohm",
+      "title": "Convert kilo-ohms to ohms",
+      "fromUnit": "kohm",
+      "toUnit": "ohm",
+      "factor": 1000,
+      "outputName": "Resistance",
+      "outputSymbol": "R",
+      "latex": "1\\,\\mathrm{k\\Omega} = 1000\\,\\mathrm{\\Omega}"
+    },
+    {
+      "id": "ma_to_a",
+      "title": "Convert milliamps to amps",
+      "fromUnit": "mA",
+      "toUnit": "A",
+      "factor": 0.001,
+      "outputName": "Current",
+      "outputSymbol": "I",
+      "latex": "1\\,\\mathrm{mA} = 10^{-3}\\,\\mathrm{A}"
+    }
+  ],
+  "problems": [
+    {
+      "id": "voltage-divider-conversion",
+      "title": "Voltage divider with a unit conversion",
+      "prompt": {
+        "text": "Find the voltage at node a relative to ground. The output is measured across R2.",
+        "latex": [
+          "V_s = 12\\,\\mathrm{V}",
+          "R_1 = 1000\\,\\mathrm{\\Omega}",
+          "R_2 = 2\\,\\mathrm{k\\Omega}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "source_voltage",
+          "name": "Source voltage",
+          "symbol": "V_s",
+          "unit": "V",
+          "quantityType": "voltage",
+          "value": 12,
+          "latex": "V_s = 12\\,\\mathrm{V}"
+        },
+        {
+          "id": "r1",
+          "name": "Resistor R1",
+          "symbol": "R_1",
+          "unit": "ohm",
+          "quantityType": "resistance",
+          "value": 1000,
+          "latex": "R_1 = 1000\\,\\mathrm{\\Omega}"
+        },
+        {
+          "id": "r2_kohm",
+          "name": "Resistor R2",
+          "symbol": "R_2",
+          "unit": "kohm",
+          "quantityType": "resistance",
+          "value": 2,
+          "latex": "R_2 = 2\\,\\mathrm{k\\Omega}"
+        }
+      ],
+      "target": {
+        "id": "node_a_voltage",
+        "name": "Node a voltage",
+        "symbol": "V_a",
+        "unit": "V",
+        "quantityType": "voltage"
+      },
+      "visual": {
+        "type": "diagram2d/v1",
+        "altText": "A 12 volt source feeds resistor R1 then node a. Resistor R2 connects node a to ground. The target is node a voltage relative to ground.",
+        "viewBox": [
+          0,
+          0,
+          480,
+          260
+        ],
+        "primitives": [
+          {
+            "kind": "line",
+            "x1": 70,
+            "y1": 80,
+            "x2": 125,
+            "y2": 80
+          },
+          {
+            "kind": "voltageSource",
+            "x": 70,
+            "y": 150,
+            "radius": 30,
+            "label": "V_s = 12 V"
+          },
+          {
+            "kind": "line",
+            "x1": 70,
+            "y1": 180,
+            "x2": 70,
+            "y2": 215
+          },
+          {
+            "kind": "ground",
+            "x": 70,
+            "y": 215
+          },
+          {
+            "kind": "resistor",
+            "x1": 125,
+            "y1": 80,
+            "x2": 260,
+            "y2": 80,
+            "label": "R_1 = 1000 ohm"
+          },
+          {
+            "kind": "point",
+            "x": 290,
+            "y": 80,
+            "label": "a"
+          },
+          {
+            "kind": "line",
+            "x1": 260,
+            "y1": 80,
+            "x2": 290,
+            "y2": 80
+          },
+          {
+            "kind": "resistor",
+            "x1": 290,
+            "y1": 105,
+            "x2": 290,
+            "y2": 190,
+            "label": "R_2 = 2 kohm"
+          },
+          {
+            "kind": "line",
+            "x1": 290,
+            "y1": 190,
+            "x2": 290,
+            "y2": 215
+          },
+          {
+            "kind": "line",
+            "x1": 70,
+            "y1": 215,
+            "x2": 290,
+            "y2": 215
+          },
+          {
+            "kind": "ground",
+            "x": 290,
+            "y": 215
+          },
+          {
+            "kind": "text",
+            "x": 330,
+            "y": 86,
+            "text": "Find V_a"
+          },
+          {
+            "kind": "capacitor",
+            "x": 1,
+            "y": 2
+          }
+        ]
+      },
+      "allowedFormulaIds": [
+        "voltage_divider"
+      ],
+      "allowedConversionIds": [
+        "kohm_to_ohm"
+      ],
+      "solutionPath": [
+        {
+          "id": "convert-r2",
+          "kind": "conversion",
+          "title": "Convert R2 to ohms",
+          "conversionId": "kohm_to_ohm",
+          "bindings": {
+            "value": "r2_kohm"
+          },
+          "output": {
+            "id": "r2_ohm",
+            "name": "R2 in ohms",
+            "symbol": "R_2",
+            "unit": "ohm",
+            "quantityType": "resistance",
+            "value": 2000
+          },
+          "teaching": {
+            "whyNow": "The two resistor values must use the same unit before we add or ratio them.",
+            "whatToNotice": "R1 is given in ohms, while R2 is given in kilo-ohms.",
+            "whyThisOperation": "This conversion makes the resistance values directly compatible for the next arithmetic step.",
+            "inputMeaning": "The selected value is R2, the lower resistor across which the target voltage is measured.",
+            "resultUse": "The converted R2 value can be added to R1 to form the full series resistance.",
+            "commonMistakes": [
+              "Treating 2 kilo-ohms as 2 ohms.",
+              "Converting R1 instead but forgetting to use that converted value later."
+            ]
+          }
+        },
+        {
+          "id": "add-series-resistance",
+          "kind": "basicMath",
+          "title": "Add the two series resistances",
+          "mathOperation": "add",
+          "bindings": {
+            "left": "r1",
+            "right": "r2_ohm"
+          },
+          "output": {
+            "id": "total_resistance",
+            "name": "Total series resistance",
+            "symbol": "R_T",
+            "unit": "ohm",
+            "quantityType": "resistance",
+            "value": 3000
+          },
+          "teaching": {
+            "whyNow": "The voltage divider needs the whole series resistance in its denominator.",
+            "whatToNotice": "R1 and R2 are in one continuous path with no branch between them.",
+            "whyThisOperation": "Series resistors add directly once their units match.",
+            "inputMeaning": "R1 is the upper resistor and converted R2 is the lower resistor; both are part of the same current path.",
+            "resultUse": "R_T is the denominator of the voltage-divider ratio.",
+            "commonMistakes": [
+              "Using the parallel-resistance rule for a series circuit.",
+              "Adding values that are still in different units."
+            ]
+          }
+        },
+        {
+          "id": "apply-voltage-divider",
+          "kind": "formula",
+          "title": "Apply the voltage divider to R2",
+          "formulaId": "voltage_divider",
+          "bindings": {
+            "sourceVoltage": "source_voltage",
+            "loadResistance": "r2_ohm",
+            "totalResistance": "total_resistance"
+          },
+          "output": {
+            "id": "node_a_voltage",
+            "name": "Node a voltage",
+            "symbol": "V_a",
+            "unit": "V",
+            "quantityType": "voltage",
+            "value": 8
+          },
+          "teaching": {
+            "whyNow": "All three inputs for the divider are now available, so the requested node voltage can be calculated.",
+            "whatToNotice": "Node a is the top of R2 and R2 is connected to ground, so V_a is the voltage across R2.",
+            "whyThisOperation": "The divider returns the fraction of the source voltage across the selected lower resistor.",
+            "inputMeaning": "Use the 12 V source, R2 as the selected load resistor, and the combined R1 plus R2 total.",
+            "resultUse": "This result is the requested target, so it can be stated as the final answer.",
+            "commonMistakes": [
+              "Putting R1 in the numerator even though the target is across R2.",
+              "Using only R2 in the denominator."
+            ]
+          }
+        },
+        {
+          "id": "state-node-voltage",
+          "kind": "finalAnswer",
+          "title": "State the node a voltage",
+          "bindings": {
+            "answer": "node_a_voltage"
+          },
+          "expectedLatex": "V_a = 8\\,\\mathrm{V}",
+          "teaching": {
+            "whyNow": "The target value has been calculated with its unit.",
+            "whatToNotice": "The prompt asks for node a relative to the ground symbol.",
+            "whyThisOperation": "A final answer should name the requested quantity, value, and unit.",
+            "inputMeaning": "Use the computed node voltage rather than one of the intermediate resistance values.",
+            "resultUse": "The problem is complete.",
+            "commonMistakes": [
+              "Reporting 8 with no unit.",
+              "Reporting the source voltage instead of node a voltage."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "resistor-voltage-and-power",
+      "title": "Resistor voltage and power",
+      "prompt": {
+        "text": "A 24 ohm resistor carries 0.50 A. Find its voltage drop and the power it absorbs.",
+        "latex": [
+          "R = 24\\,\\mathrm{\\Omega}",
+          "I = 0.50\\,\\mathrm{A}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "branch_current",
+          "name": "Branch current",
+          "symbol": "I",
+          "unit": "A",
+          "quantityType": "current",
+          "value": 0.5,
+          "latex": "I = 0.50\\,\\mathrm{A}"
+        },
+        {
+          "id": "resistor_value",
+          "name": "Resistor value",
+          "symbol": "R",
+          "unit": "ohm",
+          "quantityType": "resistance",
+          "value": 24,
+          "latex": "R = 24\\,\\mathrm{\\Omega}"
+        }
+      ],
+      "target": {
+        "id": "resistor_power",
+        "name": "Resistor power",
+        "symbol": "p_R",
+        "unit": "W",
+        "quantityType": "power"
+      },
+      "visual": {
+        "type": "diagram2d/v1",
+        "altText": "A current arrow of 0.50 amperes passes from left to right through a 24 ohm resistor with a positive voltage reference on the left side.",
+        "viewBox": [
+          0,
+          0,
+          480,
+          180
+        ],
+        "primitives": [
+          {
+            "kind": "arrow",
+            "x1": 70,
+            "y1": 55,
+            "x2": 210,
+            "y2": 55,
+            "label": "I = 0.50 A"
+          },
+          {
+            "kind": "resistor",
+            "x1": 130,
+            "y1": 105,
+            "x2": 330,
+            "y2": 105,
+            "label": "R = 24 ohm"
+          },
+          {
+            "kind": "text",
+            "x": 115,
+            "y": 140,
+            "text": "+ v -"
+          }
+        ]
+      },
+      "allowedFormulaIds": [
+        "ohms_law_voltage",
+        "passive_power"
+      ],
+      "allowedConversionIds": [],
+      "solutionPath": [
+        {
+          "id": "calculate-resistor-voltage",
+          "kind": "formula",
+          "title": "Calculate the resistor voltage",
+          "formulaId": "ohms_law_voltage",
+          "bindings": {
+            "current": "branch_current",
+            "resistance": "resistor_value"
+          },
+          "output": {
+            "id": "resistor_voltage",
+            "name": "Voltage across the resistor",
+            "symbol": "v_R",
+            "unit": "V",
+            "quantityType": "voltage",
+            "value": 12
+          },
+          "teaching": {
+            "whyNow": "Power needs voltage and current, and only current is directly given.",
+            "whatToNotice": "The current and resistance refer to the same single resistor.",
+            "whyThisOperation": "Ohm's law converts the known current and resistance into the missing voltage.",
+            "inputMeaning": "Use the branch current through this resistor and this resistor's own resistance value.",
+            "resultUse": "The voltage can now be paired with the current in the power formula.",
+            "commonMistakes": [
+              "Using a voltage from another component.",
+              "Forgetting that 0.50 times 24 is 12."
+            ]
+          }
+        },
+        {
+          "id": "calculate-resistor-power",
+          "kind": "formula",
+          "title": "Calculate absorbed resistor power",
+          "formulaId": "passive_power",
+          "bindings": {
+            "voltage": "resistor_voltage",
+            "current": "branch_current"
+          },
+          "output": {
+            "id": "resistor_power",
+            "name": "Resistor power",
+            "symbol": "p_R",
+            "unit": "W",
+            "quantityType": "power",
+            "value": 6
+          },
+          "teaching": {
+            "whyNow": "Both quantities required by the power relationship are now known for the same element.",
+            "whatToNotice": "The current enters the marked positive voltage side, so passive sign convention calls this absorbed power.",
+            "whyThisOperation": "Multiplying element voltage by element current gives its power.",
+            "inputMeaning": "Use the 12 V result across this resistor and the original 0.50 A through it.",
+            "resultUse": "This is the requested power target.",
+            "commonMistakes": [
+              "Using the resistance instead of current in p = vi.",
+              "Mixing the current direction with the voltage reference."
+            ]
+          }
+        },
+        {
+          "id": "state-resistor-power",
+          "kind": "finalAnswer",
+          "title": "State the resistor power",
+          "bindings": {
+            "answer": "resistor_power"
+          },
+          "expectedLatex": "p_R = 6\\,\\mathrm{W}\\text{ absorbed}",
+          "teaching": {
+            "whyNow": "The requested power has been calculated and interpreted using the marked reference directions.",
+            "whatToNotice": "The prompt asks for power, not just the voltage drop.",
+            "whyThisOperation": "The final statement pairs the numerical result with the physical interpretation.",
+            "inputMeaning": "Use the calculated resistor power, not the source or an intermediate voltage.",
+            "resultUse": "The problem is complete.",
+            "commonMistakes": [
+              "Leaving off watts.",
+              "Calling positive passive-sign-convention power supplied."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "differentiate-position",
+      "title": "Velocity from a position function",
+      "prompt": {
+        "text": "A point moves along the x direction with the following position function. Find its instantaneous velocity at t = 4 s.",
+        "latex": [
+          "x(t) = 3t^2 + 2t\\,\\mathrm{m}",
+          "t = 4\\,\\mathrm{s}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "time_four_seconds",
+          "name": "Evaluation time",
+          "symbol": "t",
+          "unit": "s",
+          "quantityType": "time",
+          "value": 4,
+          "latex": "t = 4\\,\\mathrm{s}"
+        }
+      ],
+      "target": {
+        "id": "velocity_at_four_seconds",
+        "name": "Velocity at 4 seconds",
+        "symbol": "v(4)",
+        "unit": "m/s",
+        "quantityType": "velocity"
+      },
+      "visual": {
+        "type": "scene3d/v1",
+        "altText": "A three-dimensional coordinate frame shows a point moving in the positive x direction. The x axis is highlighted and an arrow labels the velocity direction.",
+        "camera": {
+          "azimuthDeg": -45,
+          "elevationDeg": 28,
+          "scale": 1,
+          "projection": "orthographic"
+        },
+        "objects": [
+          {
+            "kind": "axes",
+            "length": 3,
+            "labels": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          {
+            "kind": "point",
+            "at": [
+              2.1,
+              0,
+              0
+            ],
+            "label": "P(t)"
+          },
+          {
+            "kind": "arrow",
+            "from": [
+              1.2,
+              0,
+              0
+            ],
+            "to": [
+              2.8,
+              0,
+              0
+            ],
+            "label": "v(t)"
+          }
+        ]
+      },
+      "allowedFormulaIds": [],
+      "allowedConversionIds": [],
+      "derivativeActions": [
+        {
+          "id": "differentiate-position-x",
+          "title": "Differentiate position with respect to time",
+          "expressionLatex": "x(t) = 3t^2 + 2t",
+          "variable": "t",
+          "resultLatex": "v(t) = \\frac{dx}{dt} = 6t + 2",
+          "numericEvaluation": {
+            "id": "velocity_at_four_seconds",
+            "name": "Velocity at 4 seconds",
+            "symbol": "v(4)",
+            "unit": "m/s",
+            "quantityType": "velocity",
+            "value": 26,
+            "latex": "v(4) = 26\\,\\mathrm{m/s}"
+          },
+          "output": {
+            "id": "velocity_function",
+            "name": "Velocity function",
+            "symbol": "v(t)",
+            "unit": "m/s",
+            "quantityType": "velocity"
+          },
+          "teaching": {
+            "whyNow": "The requested quantity is instantaneous velocity, which is the slope of the position function at that time.",
+            "whatToNotice": "The problem gives position x(t) but asks for velocity, not displacement.",
+            "whyThisOperation": "Differentiating position with respect to time produces velocity before we substitute t = 4 seconds.",
+            "inputMeaning": "Use the stored position expression and select time t as the differentiation variable.",
+            "resultUse": "The resulting velocity function can be evaluated at the stated time to reach the numerical answer.",
+            "commonMistakes": [
+              "Substituting t = 4 into position before differentiating.",
+              "Calling 3t squared plus 2t a velocity function."
+            ]
+          }
+        }
+      ],
+      "solutionPath": [
+        {
+          "id": "differentiate-position",
+          "kind": "derivative",
+          "title": "Differentiate position to obtain velocity",
+          "derivativeId": "differentiate-position-x",
+          "expectedLatex": "v(t) = 6t + 2",
+          "teaching": {
+            "whyNow": "We need the slope of the position curve before we can know the velocity at one instant.",
+            "whatToNotice": "The target says instantaneous velocity and the supplied function is position.",
+            "whyThisOperation": "Velocity is the derivative of position with respect to time.",
+            "inputMeaning": "Differentiate x(t) with respect to t, not with respect to x or another variable.",
+            "resultUse": "The velocity function is ready to evaluate at t = 4 seconds.",
+            "commonMistakes": [
+              "Using the original position value as the answer.",
+              "Dropping the factor of 2 when differentiating 3t squared."
+            ]
+          }
+        },
+        {
+          "id": "state-velocity-at-four",
+          "kind": "finalAnswer",
+          "title": "State the instantaneous velocity at 4 seconds",
+          "bindings": {
+            "answer": "velocity_at_four_seconds"
+          },
+          "expectedLatex": "v(4) = 26\\,\\mathrm{m/s}",
+          "teaching": {
+            "whyNow": "The derivative has been evaluated at the requested time.",
+            "whatToNotice": "The requested output has velocity units, metres per second.",
+            "whyThisOperation": "A final answer identifies the function value, number, and correct unit.",
+            "inputMeaning": "Use the numerical evaluation of the velocity function at t = 4 seconds.",
+            "resultUse": "The problem is complete.",
+            "commonMistakes": [
+              "Reporting 26 metres rather than metres per second.",
+              "Reporting the symbolic velocity function without evaluating it."
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

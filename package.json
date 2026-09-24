@@ -1,0 +1,37 @@
+{
+  "name": "guided-test-prep-local",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Offline, double-click guided test prep runtime for guided-test-file.local/v1 test files.",
+  "type": "module",
+  "scripts": {
+    "gen": "node scripts/generate-validator.mjs",
+    "dev": "npm run gen && vite",
+    "build": "npm run gen && tsc -p tsconfig.json --noEmit && vite build",
+    "typecheck": "npm run gen && tsc -p tsconfig.json --noEmit",
+    "test": "npm run gen && vitest run",
+    "test:e2e": "playwright test --project=chromium",
+    "check": "npm run typecheck && npm test && npm run build && npm run test:e2e",
+    "test:e2e:all": "playwright test --project=chromium --project=firefox --project=webkit"
+  },
+  "dependencies": {
+    "katex": "^0.18.9",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "ajv": "^8.20.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^5.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
