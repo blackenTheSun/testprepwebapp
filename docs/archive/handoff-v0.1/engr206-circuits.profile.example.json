@@ -1,0 +1,509 @@
+{
+  "apiVersion": "guided-test-profile/v1",
+  "id": "und.engr206.circuits",
+  "version": "0.1.0",
+  "title": "UND ENGR 206 Circuit Strategy Practice",
+  "subject": {
+    "key": "circuits",
+    "displayName": "Circuits I",
+    "tags": [
+      "ENGR 206",
+      "node voltage",
+      "KCL",
+      "mesh current",
+      "KVL",
+      "power"
+    ]
+  },
+  "assessmentPolicy": {
+    "defaultMode": "learn",
+    "showComputedOutput": true,
+    "allowCoachInPractice": true,
+    "allowCoachInExam": false
+  },
+  "requiredAdapters": [
+    {
+      "type": "formula/v1",
+      "version": "1.0.0"
+    },
+    {
+      "type": "circuit/v1",
+      "version": "1.0.0"
+    },
+    {
+      "type": "derivative/v1",
+      "version": "1.0.0"
+    },
+    {
+      "type": "graph2d/v1",
+      "version": "1.0.0"
+    }
+  ],
+  "formulaSheet": [
+    {
+      "id": "ohms_law_voltage",
+      "type": "formula/v1",
+      "title": "Ohms law voltage form",
+      "latex": "V = I R",
+      "category": "Resistive circuits",
+      "inputSlots": [
+        {
+          "id": "current",
+          "symbol": "I",
+          "quantityType": "current",
+          "unit": "A"
+        },
+        {
+          "id": "resistance",
+          "symbol": "R",
+          "quantityType": "resistance",
+          "unit": "ohm"
+        }
+      ],
+      "outputSlots": [
+        {
+          "id": "voltage",
+          "symbol": "V",
+          "quantityType": "voltage",
+          "unit": "V"
+        }
+      ],
+      "evaluation": {
+        "type": "expression/v1",
+        "assignments": {
+          "voltage": "current * resistance"
+        }
+      },
+      "teaching": {
+        "whatToNotice": "A resistor has a known current and resistance, or one can be found first.",
+        "whyThisOperation": "Ohms law converts the branch current into its voltage drop.",
+        "commonMistakes": [
+          "Using total source voltage instead of resistor voltage.",
+          "Mixing kilo-ohms with amps without converting units."
+        ]
+      }
+    },
+    {
+      "id": "power_passive_sign_convention",
+      "type": "formula/v1",
+      "title": "Power using passive sign convention",
+      "latex": "p = v i",
+      "category": "Power",
+      "inputSlots": [
+        {
+          "id": "voltage",
+          "symbol": "v",
+          "quantityType": "voltage",
+          "unit": "V"
+        },
+        {
+          "id": "current",
+          "symbol": "i",
+          "quantityType": "current",
+          "unit": "A"
+        }
+      ],
+      "outputSlots": [
+        {
+          "id": "power",
+          "symbol": "p",
+          "quantityType": "power",
+          "unit": "W"
+        }
+      ],
+      "evaluation": {
+        "type": "expression/v1",
+        "assignments": {
+          "power": "voltage * current"
+        }
+      },
+      "teaching": {
+        "whatToNotice": "Compare the current direction with marked voltage polarity before interpreting the result.",
+        "whyThisOperation": "The sign of p tells whether the marked element absorbs or delivers power."
+      }
+    }
+  ],
+  "operationCatalog": [
+    {
+      "id": "choose_node_voltage",
+      "type": "choose-method/v1",
+      "title": "Choose node voltage analysis"
+    },
+    {
+      "id": "write_kcl",
+      "type": "circuit-kcl/v1",
+      "title": "Write KCL at a selected node",
+      "adapterOperation": "build_kcl_equation"
+    },
+    {
+      "id": "apply_formula",
+      "type": "formula/v1",
+      "title": "Apply a formula"
+    },
+    {
+      "id": "state_final_answer",
+      "type": "final-answer/v1",
+      "title": "State final answer"
+    },
+    {
+      "id": "differentiate_expression",
+      "type": "derivative/v1",
+      "title": "Differentiate selected expression",
+      "adapterOperation": "derivative"
+    }
+  ],
+  "problemTemplates": [
+    {
+      "id": "single_node_voltage",
+      "title": "Single node voltage with two resistors",
+      "tags": [
+        "node voltage",
+        "KCL"
+      ],
+      "parameters": [
+        {
+          "id": "vs",
+          "type": "number",
+          "minimum": 8,
+          "maximum": 24,
+          "unit": "V"
+        },
+        {
+          "id": "r1",
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 5000,
+          "unit": "ohm"
+        },
+        {
+          "id": "r2",
+          "type": "number",
+          "minimum": 1000,
+          "maximum": 5000,
+          "unit": "ohm"
+        }
+      ],
+      "prompt": {
+        "text": "Use node-voltage analysis to determine the voltage at node a relative to ground.",
+        "latex": [
+          "V_s = {{vs}}\\\\,\\\\mathrm{V}",
+          "R_1 = {{r1}}\\\\,\\\\Omega",
+          "R_2 = {{r2}}\\\\,\\\\Omega"
+        ]
+      },
+      "givens": [
+        {
+          "id": "vs",
+          "label": "Source voltage",
+          "latex": "V_s = {{vs}}\\\\,\\\\mathrm{V}",
+          "quantityType": "voltage",
+          "unit": "V",
+          "value": "{{vs}}"
+        },
+        {
+          "id": "r1",
+          "label": "Left resistor",
+          "latex": "R_1 = {{r1}}\\\\,\\\\Omega",
+          "quantityType": "resistance",
+          "unit": "ohm",
+          "value": "{{r1}}"
+        },
+        {
+          "id": "r2",
+          "label": "Right resistor",
+          "latex": "R_2 = {{r2}}\\\\,\\\\Omega",
+          "quantityType": "resistance",
+          "unit": "ohm",
+          "value": "{{r2}}"
+        }
+      ],
+      "target": {
+        "id": "va",
+        "label": "Node a voltage",
+        "latex": "V_a",
+        "quantityType": "voltage",
+        "unit": "V"
+      },
+      "visual": {
+        "type": "circuit/v1",
+        "altText": "A voltage source drives resistor R1 into node a. Resistor R2 connects node a to ground.",
+        "nodes": [
+          {
+            "id": "ground",
+            "x": 40,
+            "y": 220,
+            "label": "ground",
+            "ground": true
+          },
+          {
+            "id": "source_top",
+            "x": 40,
+            "y": 80
+          },
+          {
+            "id": "a",
+            "x": 230,
+            "y": 80,
+            "label": "a"
+          }
+        ],
+        "components": [
+          {
+            "id": "vs_component",
+            "kind": "voltage_source",
+            "terminals": [
+              "ground",
+              "source_top"
+            ],
+            "label": "V_s",
+            "valueRef": "vs",
+            "polarity": [
+              "source_top",
+              "ground"
+            ]
+          },
+          {
+            "id": "r1_component",
+            "kind": "resistor",
+            "terminals": [
+              "source_top",
+              "a"
+            ],
+            "label": "R_1",
+            "valueRef": "r1"
+          },
+          {
+            "id": "r2_component",
+            "kind": "resistor",
+            "terminals": [
+              "a",
+              "ground"
+            ],
+            "label": "R_2",
+            "valueRef": "r2"
+          }
+        ],
+        "selectionTargets": [
+          {
+            "id": "node_a",
+            "kind": "node",
+            "label": "node a"
+          },
+          {
+            "id": "r1_component",
+            "kind": "component",
+            "label": "R1"
+          },
+          {
+            "id": "r2_component",
+            "kind": "component",
+            "label": "R2"
+          }
+        ]
+      },
+      "allowedOperationIds": [
+        "choose_node_voltage",
+        "write_kcl",
+        "apply_formula",
+        "state_final_answer"
+      ],
+      "solutionGraph": {
+        "nodes": [
+          {
+            "id": "choose_method",
+            "acceptedActions": [
+              {
+                "operationId": "choose_node_voltage"
+              }
+            ],
+            "teaching": {
+              "whyNow": "The requested quantity is one nonreference node voltage, so define that node voltage before calculating any branch current.",
+              "whatToNotice": "Node a connects the two resistor branches and is measured relative to the ground symbol.",
+              "whyThisOperation": "Node-voltage analysis turns every connected branch current into an equation in Va.",
+              "nextDependency": "The method choice tells us which node and branches belong in the KCL equation."
+            }
+          },
+          {
+            "id": "write_kcl_at_a",
+            "requires": [
+              "choose_method"
+            ],
+            "acceptedActions": [
+              {
+                "operationId": "write_kcl",
+                "selectedTargetIds": [
+                  "node_a"
+                ]
+              }
+            ],
+            "resultConstraint": {
+              "type": "equation_equivalent",
+              "expectedRef": "((Va - Vs) / R1) + (Va / R2) = 0"
+            },
+            "teaching": {
+              "whyNow": "We need an equation containing the unknown Va; KCL at the only unknown node supplies it.",
+              "whatToNotice": "Only R1 and R2 touch node a. The source is not directly connected to node a.",
+              "whyThisOperation": "KCL says the algebraic sum of currents at this node is zero.",
+              "inputsMeaning": "Each resistor current is written as the voltage difference across that resistor divided by its resistance.",
+              "nextDependency": "Once KCL is written, solve the one equation for Va.",
+              "commonMistakes": [
+                "Including the voltage source directly in KCL at node a.",
+                "Mixing sign conventions between the two branch currents."
+              ]
+            }
+          },
+          {
+            "id": "state_va",
+            "requires": [
+              "write_kcl_at_a"
+            ],
+            "acceptedActions": [
+              {
+                "operationId": "state_final_answer"
+              }
+            ],
+            "resultConstraint": {
+              "type": "numeric_tolerance",
+              "expectedRef": "vs * r2 / (r1 + r2)",
+              "tolerance": 0.000001
+            },
+            "teaching": {
+              "whyNow": "The KCL equation has one unknown, so it can now be solved for the requested node voltage.",
+              "whatToNotice": "The resulting form is also the voltage-divider relationship, which is a useful reasonableness check.",
+              "whyThisOperation": "The target is Va, not a branch current or power value.",
+              "nextDependency": "This completes the problem."
+            }
+          }
+        ],
+        "completionNodeIds": [
+          "state_va"
+        ]
+      }
+    },
+    {
+      "id": "slope_from_position",
+      "title": "Differentiate position to find instantaneous velocity",
+      "tags": [
+        "derivative",
+        "instantaneous slope"
+      ],
+      "parameters": [],
+      "prompt": {
+        "text": "The position of an object is x of t equals t squared plus three t. Determine its instantaneous velocity at t equals two seconds.",
+        "latex": [
+          "x(t) = t^2 + 3t",
+          "t = 2\\,\\mathrm{s}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "position_expression",
+          "label": "Position function",
+          "latex": "x(t) = t^2 + 3t",
+          "quantityType": "symbolic_expression",
+          "value": "t^2 + 3*t"
+        },
+        {
+          "id": "evaluation_time",
+          "label": "Evaluation time",
+          "latex": "t = 2\\,\\mathrm{s}",
+          "quantityType": "time",
+          "unit": "s",
+          "value": 2
+        }
+      ],
+      "target": {
+        "id": "velocity_at_two",
+        "label": "Instantaneous velocity at t equals two seconds",
+        "latex": "v(2)",
+        "quantityType": "velocity",
+        "unit": "m/s"
+      },
+      "visual": {
+        "type": "graph2d/v1",
+        "altText": "A position-versus-time parabola x of t equals t squared plus three t, with the point at t equals two highlighted.",
+        "axes": {
+          "xLabel": "t",
+          "yLabel": "x"
+        },
+        "curves": [
+          {
+            "id": "position_curve",
+            "latex": "t^2 + 3t"
+          }
+        ],
+        "selectionTargets": [
+          {
+            "id": "position_curve",
+            "kind": "curve",
+            "label": "position curve x of t"
+          },
+          {
+            "id": "point_t_2",
+            "kind": "point",
+            "label": "point at t equals two seconds"
+          }
+        ]
+      },
+      "allowedOperationIds": [
+        "differentiate_expression",
+        "state_final_answer"
+      ],
+      "solutionGraph": {
+        "nodes": [
+          {
+            "id": "differentiate_position",
+            "acceptedActions": [
+              {
+                "operationId": "differentiate_expression",
+                "selectedTargetIds": [
+                  "position_curve"
+                ],
+                "bindingRules": {
+                  "expression": "given:position_expression",
+                  "variable": "t"
+                }
+              }
+            ],
+            "resultConstraint": {
+              "type": "symbolic_equivalent",
+              "expectedRef": "2*t + 3"
+            },
+            "teaching": {
+              "whyNow": "The target is instantaneous velocity, which is the slope of the position-versus-time curve at a particular time.",
+              "whatToNotice": "The problem gives position, not velocity, and asks for a single instant rather than an average over an interval.",
+              "whyThisOperation": "Differentiating position with respect to time produces velocity.",
+              "inputsMeaning": "The expression is x of t and the differentiation variable is time.",
+              "nextDependency": "The derivative gives v of t, which can then be evaluated at t equals two."
+            }
+          },
+          {
+            "id": "state_velocity",
+            "requires": [
+              "differentiate_position"
+            ],
+            "acceptedActions": [
+              {
+                "operationId": "state_final_answer"
+              }
+            ],
+            "resultConstraint": {
+              "type": "numeric_tolerance",
+              "expectedRef": "7",
+              "tolerance": 0.000001
+            },
+            "teaching": {
+              "whyNow": "The derivative now gives velocity as a function of time, and the requested time has been provided.",
+              "whatToNotice": "Substitute t equals two into the derivative, not into the original position equation.",
+              "whyThisOperation": "Evaluating v of t at the stated time returns the requested instantaneous velocity.",
+              "nextDependency": "This completes the problem."
+            }
+          }
+        ],
+        "completionNodeIds": [
+          "state_velocity"
+        ]
+      }
+    }
+  ]
+}

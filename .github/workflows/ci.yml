@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  contract:
+    name: Validate test-file contract and fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate example test files against the schema
+        run: >
+          npx -y ajv-cli@5 validate --spec=draft2020 --strict=false
+          -s docs/handoff/test-file.local.v1.schema.json
+          -d "docs/handoff/*.example.json"

@@ -1,0 +1,897 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guided-test-prep.local/schemas/test-profile.v1.schema.json",
+  "title": "Guided Test Profile v1",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "id",
+    "version",
+    "title",
+    "formulaSheet",
+    "operationCatalog",
+    "problemTemplates"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "const": "guided-test-profile/v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "$ref": "#/$defs/subject"
+    },
+    "assessmentPolicy": {
+      "$ref": "#/$defs/assessmentPolicy"
+    },
+    "requiredAdapters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/adapterRef"
+      },
+      "uniqueItems": true
+    },
+    "formulaSheet": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/formulaDefinition"
+      },
+      "minItems": 1
+    },
+    "operationCatalog": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/operationDefinition"
+      },
+      "minItems": 1
+    },
+    "problemTemplates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/problemTemplate"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "subject": {
+      "type": "object",
+      "required": [
+        "key",
+        "displayName"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assessmentPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "defaultMode": {
+          "enum": [
+            "learn",
+            "practice",
+            "exam"
+          ]
+        },
+        "showComputedOutput": {
+          "type": "boolean",
+          "default": true
+        },
+        "allowCoachInPractice": {
+          "type": "boolean",
+          "default": true
+        },
+        "allowCoachInExam": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "adapterRef": {
+      "type": "object",
+      "required": [
+        "type",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+/v\\d+$"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "quantity": {
+      "type": "object",
+      "required": [
+        "id",
+        "symbol",
+        "quantityType"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "quantityType": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "latex": {
+          "type": "string"
+        }
+      }
+    },
+    "formulaDefinition": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "title",
+        "latex",
+        "inputSlots",
+        "outputSlots",
+        "evaluation",
+        "teaching"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "formula/v1"
+        },
+        "title": {
+          "type": "string"
+        },
+        "latex": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "inputSlots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/quantity"
+          },
+          "minItems": 1
+        },
+        "outputSlots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/quantity"
+          },
+          "minItems": 1
+        },
+        "evaluation": {
+          "$ref": "#/$defs/safeEvaluation"
+        },
+        "teaching": {
+          "$ref": "#/$defs/formulaTeaching"
+        }
+      }
+    },
+    "safeEvaluation": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "expression/v1",
+            "symbolic-transform/v1",
+            "domain-adapter/v1"
+          ]
+        },
+        "assignments": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "transform": {
+          "enum": [
+            "derivative",
+            "simplify",
+            "solve_linear_system"
+          ]
+        },
+        "adapterOperation": {
+          "type": "string"
+        }
+      }
+    },
+    "formulaTeaching": {
+      "type": "object",
+      "required": [
+        "whatToNotice",
+        "whyThisOperation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "whatToNotice": {
+          "type": "string"
+        },
+        "whyThisOperation": {
+          "type": "string"
+        },
+        "commonMistakes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "operationDefinition": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "title"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "choose-method/v1",
+            "formula/v1",
+            "derivative/v1",
+            "circuit-kcl/v1",
+            "circuit-kvl/v1",
+            "circuit-reduction/v1",
+            "solve-system/v1",
+            "unit-conversion/v1",
+            "final-answer/v1"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "adapterOperation": {
+          "type": "string"
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "number",
+            "integer",
+            "choice"
+          ]
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "choices": {
+          "type": "array",
+          "items": {}
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "problemTemplate": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "parameters",
+        "prompt",
+        "givens",
+        "target",
+        "visual",
+        "allowedOperationIds",
+        "solutionGraph"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameter"
+          }
+        },
+        "prompt": {
+          "type": "object",
+          "required": [
+            "text",
+            "latex"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "latex": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "givens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/given"
+          }
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "visual": {
+          "$ref": "#/$defs/visualSpec"
+        },
+        "allowedOperationIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "solutionGraph": {
+          "$ref": "#/$defs/solutionGraph"
+        }
+      }
+    },
+    "given": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "latex",
+        "quantityType",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "latex": {
+          "type": "string"
+        },
+        "quantityType": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "value": {}
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "quantityType"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "latex": {
+          "type": "string"
+        },
+        "quantityType": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "visualSpec": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/latexVisual"
+        },
+        {
+          "$ref": "#/$defs/circuitVisual"
+        },
+        {
+          "$ref": "#/$defs/graph2dVisual"
+        },
+        {
+          "$ref": "#/$defs/scene3dVisual"
+        }
+      ]
+    },
+    "latexVisual": {
+      "type": "object",
+      "required": [
+        "type",
+        "altText",
+        "blocks"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "latex/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "circuitVisual": {
+      "type": "object",
+      "required": [
+        "type",
+        "altText",
+        "nodes",
+        "components"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "circuit/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/circuitNode"
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/circuitComponent"
+          }
+        },
+        "selectionTargets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selectionTarget"
+          }
+        }
+      }
+    },
+    "circuitNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "x",
+        "y"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "ground": {
+          "type": "boolean"
+        }
+      }
+    },
+    "circuitComponent": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "terminals",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "resistor",
+            "voltage_source",
+            "current_source",
+            "wire",
+            "dependent_source"
+          ]
+        },
+        "terminals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "label": {
+          "type": "string"
+        },
+        "valueRef": {
+          "type": "string"
+        },
+        "polarity": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "graph2dVisual": {
+      "type": "object",
+      "required": [
+        "type",
+        "altText",
+        "axes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "graph2d/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "axes": {
+          "type": "object"
+        },
+        "curves": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "selectionTargets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selectionTarget"
+          }
+        }
+      }
+    },
+    "scene3dVisual": {
+      "type": "object",
+      "required": [
+        "type",
+        "altText",
+        "camera",
+        "objects"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "scene3d/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "camera": {
+          "type": "object",
+          "required": [
+            "position",
+            "target"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "projection": {
+              "enum": [
+                "orthographic",
+                "perspective"
+              ]
+            },
+            "position": {
+              "$ref": "#/$defs/vector3"
+            },
+            "target": {
+              "$ref": "#/$defs/vector3"
+            }
+          }
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "axis",
+                  "arrow",
+                  "point",
+                  "line",
+                  "plane",
+                  "box",
+                  "sphere",
+                  "label"
+                ]
+              },
+              "label": {
+                "type": "string"
+              },
+              "position": {
+                "$ref": "#/$defs/vector3"
+              },
+              "direction": {
+                "$ref": "#/$defs/vector3"
+              }
+            }
+          }
+        },
+        "selectionTargets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selectionTarget"
+          }
+        }
+      }
+    },
+    "vector3": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "selectionTarget": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "solutionGraph": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "completionNodeIds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/solutionNode"
+          },
+          "minItems": 1
+        },
+        "completionNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "solutionNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "acceptedActions",
+        "teaching"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "acceptedActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/actionPattern"
+          },
+          "minItems": 1
+        },
+        "resultConstraint": {
+          "$ref": "#/$defs/resultConstraint"
+        },
+        "teaching": {
+          "$ref": "#/$defs/solutionTeaching"
+        }
+      }
+    },
+    "actionPattern": {
+      "type": "object",
+      "required": [
+        "operationId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "type": "string"
+        },
+        "formulaId": {
+          "type": "string"
+        },
+        "selectedTargetIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bindingRules": {
+          "type": "object"
+        }
+      }
+    },
+    "resultConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "exact",
+            "numeric_tolerance",
+            "symbolic_equivalent",
+            "equation_equivalent",
+            "accepted_set"
+          ]
+        },
+        "expectedRef": {
+          "type": "string"
+        },
+        "tolerance": {
+          "type": "number"
+        }
+      }
+    },
+    "solutionTeaching": {
+      "type": "object",
+      "required": [
+        "whyNow",
+        "whatToNotice",
+        "whyThisOperation",
+        "nextDependency"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "whyNow": {
+          "type": "string"
+        },
+        "whatToNotice": {
+          "type": "string"
+        },
+        "whyThisOperation": {
+          "type": "string"
+        },
+        "inputsMeaning": {
+          "type": "string"
+        },
+        "nextDependency": {
+          "type": "string"
+        },
+        "commonMistakes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1408 @@
+{
+  "apiVersion": "guided-test-file.local/v1",
+  "id": "mechanics-of-materials-local-practice-01",
+  "version": "0.2.0",
+  "title": "Mechanics of Materials Local Guided Practice",
+  "description": "Three fixed mechanics-of-materials problems using the same local test-file contract as the circuit example. Concepts align to average shear stress, axial deformation and strain, and bilinear shear stress-strain behavior.",
+  "formulaSheet": [
+    {
+      "id": "circular_bolt_area",
+      "title": "Circular bolt cross-sectional area",
+      "category": "Connection geometry",
+      "latex": "A_b = \\frac{\\pi d^2}{4}",
+      "inputs": [
+        {
+          "id": "diameter",
+          "name": "Bolt diameter",
+          "symbol": "d",
+          "unit": "mm",
+          "quantityType": "length"
+        }
+      ],
+      "output": {
+        "id": "boltArea",
+        "name": "Bolt cross-sectional area",
+        "symbol": "A_b",
+        "unit": "mm^2",
+        "quantityType": "area"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "divide",
+          "args": [
+            {
+              "op": "multiply",
+              "args": [
+                {
+                  "op": "number",
+                  "value": 3.141592653589793
+                },
+                {
+                  "op": "power",
+                  "args": [
+                    {
+                      "op": "slot",
+                      "slot": "diameter"
+                    },
+                    {
+                      "op": "number",
+                      "value": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "number",
+              "value": 4
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The bolts are circular, and the working shear area is their cross-sectional area at a shear plane.",
+        "whyThisOperation": "Diameter is given, so the circle-area relationship produces the area of one bolt at one shear plane.",
+        "commonMistakes": [
+          "Using pi times d squared instead of pi d squared divided by four.",
+          "Forgetting that the diameter is squared."
+        ]
+      }
+    },
+    {
+      "id": "effective_multi_plane_shear_area",
+      "title": "Effective area for multiple bolts and shear planes",
+      "category": "Connection geometry",
+      "latex": "A_{eff} = n N_p A_b",
+      "inputs": [
+        {
+          "id": "boltCount",
+          "name": "Number of bolts",
+          "symbol": "n",
+          "unit": "count",
+          "quantityType": "count"
+        },
+        {
+          "id": "shearPlanes",
+          "name": "Shear planes per bolt",
+          "symbol": "N_p",
+          "unit": "count",
+          "quantityType": "count"
+        },
+        {
+          "id": "boltArea",
+          "name": "Area of one bolt",
+          "symbol": "A_b",
+          "unit": "mm^2",
+          "quantityType": "area"
+        }
+      ],
+      "output": {
+        "id": "effectiveShearArea",
+        "name": "Effective shear area",
+        "symbol": "A_{eff}",
+        "unit": "mm^2",
+        "quantityType": "area"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "multiply",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "boltCount"
+            },
+            {
+              "op": "multiply",
+              "args": [
+                {
+                  "op": "slot",
+                  "slot": "shearPlanes"
+                },
+                {
+                  "op": "slot",
+                  "slot": "boltArea"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The connection has several bolts, and a double-lap joint places two shear planes through each bolt.",
+        "whyThisOperation": "The load is shared across every stated bolt and every stated shear plane under the equal-load-sharing assumption.",
+        "commonMistakes": [
+          "Counting the bolts but forgetting the second shear plane.",
+          "Doubling the bolt diameter instead of doubling the number of shear planes."
+        ]
+      }
+    },
+    {
+      "id": "average_shear_stress",
+      "title": "Average shear stress",
+      "category": "Average stress",
+      "latex": "\\tau_{avg} = \\frac{V}{A_{eff}}",
+      "inputs": [
+        {
+          "id": "shearLoad",
+          "name": "Applied shear load",
+          "symbol": "V",
+          "unit": "N",
+          "quantityType": "force"
+        },
+        {
+          "id": "effectiveShearArea",
+          "name": "Effective shear area",
+          "symbol": "A_{eff}",
+          "unit": "mm^2",
+          "quantityType": "area"
+        }
+      ],
+      "output": {
+        "id": "averageShearStress",
+        "name": "Average shear stress",
+        "symbol": "\\tau_{avg}",
+        "unit": "MPa",
+        "quantityType": "stress"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "divide",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "shearLoad"
+            },
+            {
+              "op": "slot",
+              "slot": "effectiveShearArea"
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The load acts to slide the connected plates across the bolt shanks.",
+        "whyThisOperation": "Average shear stress is the applied shear force divided by the total area resisting that shear. N per square millimetre is MPa.",
+        "commonMistakes": [
+          "Dividing by only one bolt area.",
+          "Using the unconverted load in kilonewtons with square millimetres."
+        ]
+      }
+    },
+    {
+      "id": "axial_deformation",
+      "title": "Axial deformation of a prismatic bar",
+      "category": "Axial loading",
+      "latex": "\\delta = \\frac{P L}{A E}",
+      "inputs": [
+        {
+          "id": "axialLoad",
+          "name": "Axial load",
+          "symbol": "P",
+          "unit": "N",
+          "quantityType": "force"
+        },
+        {
+          "id": "barLength",
+          "name": "Original bar length",
+          "symbol": "L",
+          "unit": "mm",
+          "quantityType": "length"
+        },
+        {
+          "id": "barArea",
+          "name": "Cross-sectional area",
+          "symbol": "A",
+          "unit": "mm^2",
+          "quantityType": "area"
+        },
+        {
+          "id": "elasticModulus",
+          "name": "Elastic modulus",
+          "symbol": "E",
+          "unit": "MPa",
+          "quantityType": "modulus"
+        }
+      ],
+      "output": {
+        "id": "axialDeformation",
+        "name": "Axial elongation",
+        "symbol": "\\delta",
+        "unit": "mm",
+        "quantityType": "deformation"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "divide",
+          "args": [
+            {
+              "op": "multiply",
+              "args": [
+                {
+                  "op": "slot",
+                  "slot": "axialLoad"
+                },
+                {
+                  "op": "slot",
+                  "slot": "barLength"
+                }
+              ]
+            },
+            {
+              "op": "multiply",
+              "args": [
+                {
+                  "op": "slot",
+                  "slot": "barArea"
+                },
+                {
+                  "op": "slot",
+                  "slot": "elasticModulus"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The member is straight, prismatic, and loaded along its axis.",
+        "whyThisOperation": "For a uniform elastic bar, load and length increase deformation while area and modulus reduce it.",
+        "commonMistakes": [
+          "Using metres with square millimetres and MPa without converting.",
+          "Putting E in the numerator."
+        ]
+      }
+    },
+    {
+      "id": "normal_strain_from_deformation",
+      "title": "Normal strain from elongation",
+      "category": "Strain",
+      "latex": "\\epsilon = \\frac{\\delta}{L}",
+      "inputs": [
+        {
+          "id": "deformation",
+          "name": "Axial deformation",
+          "symbol": "\\delta",
+          "unit": "mm",
+          "quantityType": "deformation"
+        },
+        {
+          "id": "originalLength",
+          "name": "Original length",
+          "symbol": "L",
+          "unit": "mm",
+          "quantityType": "length"
+        }
+      ],
+      "output": {
+        "id": "normalStrain",
+        "name": "Normal strain",
+        "symbol": "\\epsilon",
+        "unit": "mm/mm",
+        "quantityType": "strain"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "divide",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "deformation"
+            },
+            {
+              "op": "slot",
+              "slot": "originalLength"
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "Strain is a normalized change in length, so it compares elongation to the original length.",
+        "whyThisOperation": "Dividing delta by L removes length units and produces dimensionless normal strain.",
+        "commonMistakes": [
+          "Dividing the original length by the elongation.",
+          "Reporting millimetres as the unit of strain."
+        ]
+      }
+    },
+    {
+      "id": "elastic_shear_strain",
+      "title": "Elastic shear strain",
+      "category": "Shear stress strain",
+      "latex": "\\gamma = \\frac{\\tau}{G}",
+      "inputs": [
+        {
+          "id": "shearStress",
+          "name": "Shear stress",
+          "symbol": "\\tau",
+          "unit": "MPa",
+          "quantityType": "stress"
+        },
+        {
+          "id": "shearModulus",
+          "name": "Shear modulus",
+          "symbol": "G",
+          "unit": "MPa",
+          "quantityType": "modulus"
+        }
+      ],
+      "output": {
+        "id": "elasticShearStrain",
+        "name": "Elastic shear strain",
+        "symbol": "\\gamma_e",
+        "unit": "rad",
+        "quantityType": "strain"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "divide",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "shearStress"
+            },
+            {
+              "op": "slot",
+              "slot": "shearModulus"
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "Within an elastic segment, the slope of the shear stress-strain relation is the shear modulus.",
+        "whyThisOperation": "Stress divided by the applicable slope gives the matching elastic shear strain.",
+        "commonMistakes": [
+          "Using the tangent post-yield slope for the elastic recovery segment.",
+          "Adding stress and modulus instead of dividing."
+        ]
+      }
+    },
+    {
+      "id": "post_yield_shear_strain_increment",
+      "title": "Post-yield shear strain increment",
+      "category": "Shear stress strain",
+      "latex": "\\Delta\\gamma_p = \\frac{\\tau - \\tau_y}{G_t}",
+      "inputs": [
+        {
+          "id": "workingShearStress",
+          "name": "Working shear stress",
+          "symbol": "\\tau",
+          "unit": "MPa",
+          "quantityType": "stress"
+        },
+        {
+          "id": "yieldShearStress",
+          "name": "Yield shear stress",
+          "symbol": "\\tau_y",
+          "unit": "MPa",
+          "quantityType": "stress"
+        },
+        {
+          "id": "tangentShearModulus",
+          "name": "Post-yield tangent shear modulus",
+          "symbol": "G_t",
+          "unit": "MPa",
+          "quantityType": "modulus"
+        }
+      ],
+      "output": {
+        "id": "postYieldShearStrain",
+        "name": "Post-yield shear strain increment",
+        "symbol": "\\Delta\\gamma_p",
+        "unit": "rad",
+        "quantityType": "strain"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "divide",
+          "args": [
+            {
+              "op": "subtract",
+              "args": [
+                {
+                  "op": "slot",
+                  "slot": "workingShearStress"
+                },
+                {
+                  "op": "slot",
+                  "slot": "yieldShearStress"
+                }
+              ]
+            },
+            {
+              "op": "slot",
+              "slot": "tangentShearModulus"
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The stated working stress lies above yield on the second, lower-slope segment of the curve.",
+        "whyThisOperation": "Only the stress above yield belongs on the tangent segment, so subtract tau_y before dividing by G_t.",
+        "commonMistakes": [
+          "Dividing the full working stress by the tangent modulus.",
+          "Using the initial elastic modulus for the post-yield increment."
+        ]
+      }
+    }
+  ],
+  "conversions": [
+    {
+      "id": "kn_to_n",
+      "title": "Convert kilonewtons to newtons",
+      "fromUnit": "kN",
+      "toUnit": "N",
+      "factor": 1000,
+      "outputName": "Force",
+      "outputSymbol": "P",
+      "latex": "1\\,\\mathrm{kN} = 1000\\,\\mathrm{N}"
+    },
+    {
+      "id": "m_to_mm",
+      "title": "Convert metres to millimetres",
+      "fromUnit": "m",
+      "toUnit": "mm",
+      "factor": 1000,
+      "outputName": "Length",
+      "outputSymbol": "L",
+      "latex": "1\\,\\mathrm{m} = 1000\\,\\mathrm{mm}"
+    },
+    {
+      "id": "gpa_to_mpa",
+      "title": "Convert gigapascals to megapascals",
+      "fromUnit": "GPa",
+      "toUnit": "MPa",
+      "factor": 1000,
+      "outputName": "Elastic modulus",
+      "outputSymbol": "E",
+      "latex": "1\\,\\mathrm{GPa} = 1000\\,\\mathrm{MPa}"
+    }
+  ],
+  "problems": [
+    {
+      "id": "double_shear_bolt_group",
+      "title": "Average shear stress in a double-lap bolt group",
+      "prompt": {
+        "text": "A double-lap connection transfers a 120 kN load through four 10 mm diameter bolts. Assume equal load sharing, no prying action, and two shear planes per bolt. Find the average shear stress in the bolts.",
+        "latex": [
+          "V = 120\\,\\mathrm{kN}",
+          "n = 4",
+          "N_p = 2",
+          "d = 10\\,\\mathrm{mm}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "applied_load_kn",
+          "name": "Applied load",
+          "symbol": "V",
+          "unit": "kN",
+          "quantityType": "force",
+          "value": 120,
+          "latex": "V = 120\\,\\mathrm{kN}"
+        },
+        {
+          "id": "bolt_count",
+          "name": "Number of bolts",
+          "symbol": "n",
+          "unit": "count",
+          "quantityType": "count",
+          "value": 4,
+          "latex": "n = 4"
+        },
+        {
+          "id": "shear_planes_per_bolt",
+          "name": "Shear planes per bolt",
+          "symbol": "N_p",
+          "unit": "count",
+          "quantityType": "count",
+          "value": 2,
+          "latex": "N_p = 2"
+        },
+        {
+          "id": "bolt_diameter",
+          "name": "Bolt diameter",
+          "symbol": "d",
+          "unit": "mm",
+          "quantityType": "length",
+          "value": 10,
+          "latex": "d = 10\\,\\mathrm{mm}"
+        }
+      ],
+      "target": {
+        "id": "average_bolt_shear_stress",
+        "name": "Average shear stress in each bolt group",
+        "symbol": "\\tau_{avg}",
+        "unit": "MPa",
+        "quantityType": "stress"
+      },
+      "visual": {
+        "type": "diagram2d/v1",
+        "altText": "A double-lap bolted connection with a center plate between two cover plates. Four bolts pass through all three plates. The applied load pulls the center plate right and the cover plates left, creating two shear planes through each bolt.",
+        "viewBox": [
+          0,
+          0,
+          560,
+          280
+        ],
+        "primitives": [
+          {
+            "kind": "rect",
+            "x": 80,
+            "y": 65,
+            "width": 360,
+            "height": 28,
+            "label": "cover plate"
+          },
+          {
+            "kind": "rect",
+            "x": 80,
+            "y": 122,
+            "width": 360,
+            "height": 36,
+            "label": "center plate"
+          },
+          {
+            "kind": "rect",
+            "x": 80,
+            "y": 187,
+            "width": 360,
+            "height": 28,
+            "label": "cover plate"
+          },
+          {
+            "kind": "circle",
+            "x": 170,
+            "y": 140,
+            "radius": 13,
+            "label": "bolt 1"
+          },
+          {
+            "kind": "circle",
+            "x": 245,
+            "y": 140,
+            "radius": 13,
+            "label": "bolt 2"
+          },
+          {
+            "kind": "circle",
+            "x": 320,
+            "y": 140,
+            "radius": 13,
+            "label": "bolt 3"
+          },
+          {
+            "kind": "circle",
+            "x": 395,
+            "y": 140,
+            "radius": 13,
+            "label": "bolt 4"
+          },
+          {
+            "kind": "arrow",
+            "x1": 450,
+            "y1": 140,
+            "x2": 530,
+            "y2": 140,
+            "label": "V = 120 kN"
+          },
+          {
+            "kind": "arrow",
+            "x1": 80,
+            "y1": 79,
+            "x2": 20,
+            "y2": 79,
+            "label": "cover plate"
+          },
+          {
+            "kind": "arrow",
+            "x1": 80,
+            "y1": 201,
+            "x2": 20,
+            "y2": 201,
+            "label": "cover plate"
+          },
+          {
+            "kind": "text",
+            "x": 95,
+            "y": 248,
+            "text": "Two shear planes per bolt"
+          }
+        ]
+      },
+      "allowedFormulaIds": [
+        "circular_bolt_area",
+        "effective_multi_plane_shear_area",
+        "average_shear_stress"
+      ],
+      "allowedConversionIds": [
+        "kn_to_n"
+      ],
+      "solutionPath": [
+        {
+          "id": "convert_bolt_load",
+          "kind": "conversion",
+          "title": "Convert the applied load to newtons",
+          "conversionId": "kn_to_n",
+          "bindings": {
+            "value": "applied_load_kn"
+          },
+          "output": {
+            "id": "applied_load_n",
+            "name": "Applied load in newtons",
+            "symbol": "V",
+            "unit": "N",
+            "quantityType": "force",
+            "value": 120000
+          },
+          "teaching": {
+            "whyNow": "The stress calculation will use square millimetres, so the force must be in newtons to produce N per square millimetre.",
+            "whatToNotice": "The load is stated in kilonewtons while the bolt dimensions are in millimetres.",
+            "whyThisOperation": "Converting first keeps the units compatible for the average-stress formula.",
+            "inputMeaning": "Use the full connection load, not a prematurely divided per-bolt value.",
+            "resultUse": "The converted load is ready to divide by the total effective shear area.",
+            "commonMistakes": [
+              "Using 120 as though it were already newtons.",
+              "Dividing by the bolt count before setting up the resisting area."
+            ]
+          }
+        },
+        {
+          "id": "calculate_one_bolt_area",
+          "kind": "formula",
+          "title": "Calculate the area of one bolt",
+          "formulaId": "circular_bolt_area",
+          "bindings": {
+            "diameter": "bolt_diameter"
+          },
+          "output": {
+            "id": "single_bolt_area",
+            "name": "Area of one bolt",
+            "symbol": "A_b",
+            "unit": "mm^2",
+            "quantityType": "area",
+            "value": 78.53981633974483
+          },
+          "teaching": {
+            "whyNow": "The total resisting area is built from the area of one bolt at one shear plane.",
+            "whatToNotice": "Only the 10 mm diameter is needed for the circular cross-sectional area.",
+            "whyThisOperation": "The bolt shank resists shear across a circular cross section.",
+            "inputMeaning": "Use the bolt diameter, not the number of bolts or plate width.",
+            "resultUse": "One-bolt area can now be multiplied by four bolts and two planes per bolt.",
+            "commonMistakes": [
+              "Using radius equal to 10 mm instead of 5 mm.",
+              "Counting shear planes in the circle-area formula."
+            ]
+          }
+        },
+        {
+          "id": "calculate_effective_shear_area",
+          "kind": "formula",
+          "title": "Calculate the total effective shear area",
+          "formulaId": "effective_multi_plane_shear_area",
+          "bindings": {
+            "boltCount": "bolt_count",
+            "shearPlanes": "shear_planes_per_bolt",
+            "boltArea": "single_bolt_area"
+          },
+          "output": {
+            "id": "effective_shear_area",
+            "name": "Effective shear area",
+            "symbol": "A_{eff}",
+            "unit": "mm^2",
+            "quantityType": "area",
+            "value": 628.3185307179587
+          },
+          "teaching": {
+            "whyNow": "All area contributors are known, and average stress needs the total resistance across the whole joint.",
+            "whatToNotice": "There are four bolts and the double-lap geometry creates two planes through every bolt.",
+            "whyThisOperation": "Equal load sharing lets the resisting areas add directly.",
+            "inputMeaning": "Select four bolts, two planes per bolt, and the calculated area of one bolt.",
+            "resultUse": "The effective area is the denominator of average shear stress.",
+            "commonMistakes": [
+              "Using four times A_b instead of eight times A_b.",
+              "Multiplying the load and area rather than dividing load by total area."
+            ]
+          }
+        },
+        {
+          "id": "calculate_average_shear_stress",
+          "kind": "formula",
+          "title": "Calculate average bolt shear stress",
+          "formulaId": "average_shear_stress",
+          "bindings": {
+            "shearLoad": "applied_load_n",
+            "effectiveShearArea": "effective_shear_area"
+          },
+          "output": {
+            "id": "average_bolt_shear_stress",
+            "name": "Average bolt shear stress",
+            "symbol": "\\tau_{avg}",
+            "unit": "MPa",
+            "quantityType": "stress",
+            "value": 190.9859317102744
+          },
+          "teaching": {
+            "whyNow": "The applied force and full resisting area are now known in compatible units.",
+            "whatToNotice": "This is a shear problem: the plates tend to slide past each other across the bolt shanks.",
+            "whyThisOperation": "Average shear stress is force divided by the effective shear area; N per square millimetre is MPa.",
+            "inputMeaning": "Use the whole 120000 N load and the eight-plane total area, not a single bolt area.",
+            "resultUse": "This result is the requested average bolt stress.",
+            "commonMistakes": [
+              "Reporting the single-shear value of about 382 MPa for a connection that explicitly has two planes per bolt.",
+              "Leaving the result in N per square millimetre without recognizing it as MPa."
+            ]
+          }
+        },
+        {
+          "id": "state_average_shear_stress",
+          "kind": "finalAnswer",
+          "title": "State the average shear stress",
+          "bindings": {
+            "answer": "average_bolt_shear_stress"
+          },
+          "expectedLatex": "\\tau_{avg} \\approx 191\\,\\mathrm{MPa}",
+          "teaching": {
+            "whyNow": "The requested average stress has been calculated using all eight shear planes.",
+            "whatToNotice": "The requested quantity is stress, so the result needs MPa rather than force units.",
+            "whyThisOperation": "The final answer names the quantity, rounded value, and unit.",
+            "inputMeaning": "Use the computed total-joint average stress.",
+            "resultUse": "The problem is complete.",
+            "commonMistakes": [
+              "Reporting 191 kN.",
+              "Stating 382 MPa after ignoring the double shear planes."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "axial_bar_elongation_and_strain",
+      "title": "Axial deformation and normal strain of a steel bar",
+      "prompt": {
+        "text": "A uniform steel bar is 2.0 m long with cross-sectional area 600 mm squared. It carries a 60 kN tensile load and has E = 200 GPa. Find its elongation, then its normal strain.",
+        "latex": [
+          "P = 60\\,\\mathrm{kN}",
+          "L = 2.0\\,\\mathrm{m}",
+          "A = 600\\,\\mathrm{mm^2}",
+          "E = 200\\,\\mathrm{GPa}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "bar_load_kn",
+          "name": "Tensile load",
+          "symbol": "P",
+          "unit": "kN",
+          "quantityType": "force",
+          "value": 60,
+          "latex": "P = 60\\,\\mathrm{kN}"
+        },
+        {
+          "id": "bar_length_m",
+          "name": "Original bar length",
+          "symbol": "L",
+          "unit": "m",
+          "quantityType": "length",
+          "value": 2,
+          "latex": "L = 2.0\\,\\mathrm{m}"
+        },
+        {
+          "id": "bar_area_mm2",
+          "name": "Bar cross-sectional area",
+          "symbol": "A",
+          "unit": "mm^2",
+          "quantityType": "area",
+          "value": 600,
+          "latex": "A = 600\\,\\mathrm{mm^2}"
+        },
+        {
+          "id": "steel_modulus_gpa",
+          "name": "Steel elastic modulus",
+          "symbol": "E",
+          "unit": "GPa",
+          "quantityType": "modulus",
+          "value": 200,
+          "latex": "E = 200\\,\\mathrm{GPa}"
+        }
+      ],
+      "target": {
+        "id": "bar_normal_strain",
+        "name": "Normal strain in the bar",
+        "symbol": "\\epsilon",
+        "unit": "mm/mm",
+        "quantityType": "strain"
+      },
+      "visual": {
+        "type": "scene3d/v1",
+        "altText": "A three-dimensional coordinate frame shows a straight prismatic bar aligned with the x axis. A fixed support is on the left and a tensile load arrow pulls the right end in the positive x direction.",
+        "camera": {
+          "azimuthDeg": -42,
+          "elevationDeg": 23,
+          "scale": 1,
+          "projection": "orthographic"
+        },
+        "objects": [
+          {
+            "kind": "axes",
+            "length": 3,
+            "labels": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          {
+            "kind": "box",
+            "center": [
+              1.35,
+              0,
+              0
+            ],
+            "size": [
+              2.4,
+              0.3,
+              0.3
+            ],
+            "label": "steel bar"
+          },
+          {
+            "kind": "plane",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "u": [
+              0,
+              0.7,
+              0
+            ],
+            "v": [
+              0,
+              0,
+              0.7
+            ],
+            "label": "fixed support"
+          },
+          {
+            "kind": "arrow",
+            "from": [
+              2.6,
+              0,
+              0
+            ],
+            "to": [
+              3.6,
+              0,
+              0
+            ],
+            "label": "P = 60 kN"
+          }
+        ]
+      },
+      "allowedFormulaIds": [
+        "axial_deformation",
+        "normal_strain_from_deformation"
+      ],
+      "allowedConversionIds": [
+        "kn_to_n",
+        "m_to_mm",
+        "gpa_to_mpa"
+      ],
+      "solutionPath": [
+        {
+          "id": "convert_bar_load",
+          "kind": "conversion",
+          "title": "Convert the load to newtons",
+          "conversionId": "kn_to_n",
+          "bindings": {
+            "value": "bar_load_kn"
+          },
+          "output": {
+            "id": "bar_load_n",
+            "name": "Tensile load in newtons",
+            "symbol": "P",
+            "unit": "N",
+            "quantityType": "force",
+            "value": 60000
+          },
+          "teaching": {
+            "whyNow": "The deformation formula will use millimetres and MPa, which is equivalent to N per square millimetre.",
+            "whatToNotice": "The force is given in kN while area is given in square millimetres.",
+            "whyThisOperation": "Converting P to newtons makes the force consistent with the other selected units.",
+            "inputMeaning": "Use the full axial tensile load through the bar.",
+            "resultUse": "This force becomes the numerator of the deformation formula.",
+            "commonMistakes": [
+              "Leaving 60 in the formula as if it were newtons.",
+              "Converting the area instead of the force."
+            ]
+          }
+        },
+        {
+          "id": "convert_bar_length",
+          "kind": "conversion",
+          "title": "Convert the bar length to millimetres",
+          "conversionId": "m_to_mm",
+          "bindings": {
+            "value": "bar_length_m"
+          },
+          "output": {
+            "id": "bar_length_mm",
+            "name": "Original bar length in millimetres",
+            "symbol": "L",
+            "unit": "mm",
+            "quantityType": "length",
+            "value": 2000
+          },
+          "teaching": {
+            "whyNow": "Length must match the millimetre-based area and deformation unit system.",
+            "whatToNotice": "L is supplied in metres, but A is supplied in square millimetres.",
+            "whyThisOperation": "A metre-to-millimetre conversion keeps every geometric quantity in the same length basis.",
+            "inputMeaning": "Use the original, unloaded bar length.",
+            "resultUse": "The converted length is used first in deformation and then again in strain.",
+            "commonMistakes": [
+              "Using 2 instead of 2000 in a millimetre formula.",
+              "Converting 2 m to 200 mm."
+            ]
+          }
+        },
+        {
+          "id": "convert_steel_modulus",
+          "kind": "conversion",
+          "title": "Convert elastic modulus to megapascals",
+          "conversionId": "gpa_to_mpa",
+          "bindings": {
+            "value": "steel_modulus_gpa"
+          },
+          "output": {
+            "id": "steel_modulus_mpa",
+            "name": "Steel elastic modulus in megapascals",
+            "symbol": "E",
+            "unit": "MPa",
+            "quantityType": "modulus",
+            "value": 200000
+          },
+          "teaching": {
+            "whyNow": "The area is in square millimetres, so modulus should be in N per square millimetre, or MPa.",
+            "whatToNotice": "The material property is given in GPa, not MPa.",
+            "whyThisOperation": "Converting 200 GPa to 200000 MPa matches the force and area units in the deformation relation.",
+            "inputMeaning": "Use the material stiffness E, not the load or bar geometry.",
+            "resultUse": "The converted modulus becomes part of the denominator that resists elongation.",
+            "commonMistakes": [
+              "Using 200 MPa instead of 200000 MPa.",
+              "Putting E in the numerator."
+            ]
+          }
+        },
+        {
+          "id": "calculate_bar_elongation",
+          "kind": "formula",
+          "title": "Calculate axial elongation",
+          "formulaId": "axial_deformation",
+          "bindings": {
+            "axialLoad": "bar_load_n",
+            "barLength": "bar_length_mm",
+            "barArea": "bar_area_mm2",
+            "elasticModulus": "steel_modulus_mpa"
+          },
+          "output": {
+            "id": "bar_elongation",
+            "name": "Axial elongation",
+            "symbol": "\\delta",
+            "unit": "mm",
+            "quantityType": "deformation",
+            "value": 1
+          },
+          "teaching": {
+            "whyNow": "All force, length, area, and modulus inputs are now consistent and available.",
+            "whatToNotice": "The bar is uniform and loaded along its own axis, which matches the prismatic-bar deformation model.",
+            "whyThisOperation": "PL divided by AE yields elastic axial elongation for a uniform bar.",
+            "inputMeaning": "Use the converted load, converted original length, supplied area, and converted elastic modulus.",
+            "resultUse": "The elongation is needed to calculate normal strain.",
+            "commonMistakes": [
+              "Using the 2 m length directly with millimetres and MPa.",
+              "Multiplying by area and modulus instead of dividing by them."
+            ]
+          }
+        },
+        {
+          "id": "calculate_bar_strain",
+          "kind": "formula",
+          "title": "Calculate normal strain",
+          "formulaId": "normal_strain_from_deformation",
+          "bindings": {
+            "deformation": "bar_elongation",
+            "originalLength": "bar_length_mm"
+          },
+          "output": {
+            "id": "bar_normal_strain",
+            "name": "Normal strain in the bar",
+            "symbol": "\\epsilon",
+            "unit": "mm/mm",
+            "quantityType": "strain",
+            "value": 0.0005
+          },
+          "teaching": {
+            "whyNow": "The elongation and original length are now known in the same length unit.",
+            "whatToNotice": "The question asks for strain after elongation, and strain is a ratio rather than a length.",
+            "whyThisOperation": "Dividing delta by original L normalizes the length change.",
+            "inputMeaning": "Use the 1 mm elongation and the original 2000 mm length.",
+            "resultUse": "This is the requested strain target.",
+            "commonMistakes": [
+              "Using deformed length instead of original length.",
+              "Reporting 0.0005 mm rather than a dimensionless ratio."
+            ]
+          }
+        },
+        {
+          "id": "state_bar_strain",
+          "kind": "finalAnswer",
+          "title": "State the normal strain",
+          "bindings": {
+            "answer": "bar_normal_strain"
+          },
+          "expectedLatex": "\\epsilon = 5.0 \\times 10^{-4}\\,\\mathrm{mm/mm}",
+          "teaching": {
+            "whyNow": "The requested strain has been calculated from the elastic elongation.",
+            "whatToNotice": "Strain is dimensionless and is often written as mm per mm.",
+            "whyThisOperation": "The final answer identifies the requested quantity and its normalized form.",
+            "inputMeaning": "Use the calculated bar strain rather than the 1 mm elongation.",
+            "resultUse": "The problem is complete.",
+            "commonMistakes": [
+              "Reporting 1 mm when the target is strain.",
+              "Forgetting to use scientific notation or a strain ratio."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "bilinear_shear_strain_unloading",
+      "title": "Residual shear strain from a bilinear stress strain diagram",
+      "prompt": {
+        "text": "A material has an initial shear modulus G = 80000 MPa up to tau_y = 250 MPa. Beyond yield, the tangent shear modulus is G_t = 6000 MPa. It is loaded to tau = 370 MPa and then unloaded along the initial elastic slope. Find the residual shear strain.",
+        "latex": [
+          "G = 80000\\,\\mathrm{MPa}",
+          "\\tau_y = 250\\,\\mathrm{MPa}",
+          "G_t = 6000\\,\\mathrm{MPa}",
+          "\\tau = 370\\,\\mathrm{MPa}"
+        ]
+      },
+      "givens": [
+        {
+          "id": "initial_shear_modulus",
+          "name": "Initial shear modulus",
+          "symbol": "G",
+          "unit": "MPa",
+          "quantityType": "modulus",
+          "value": 80000,
+          "latex": "G = 80000\\,\\mathrm{MPa}"
+        },
+        {
+          "id": "yield_shear_stress",
+          "name": "Yield shear stress",
+          "symbol": "\\tau_y",
+          "unit": "MPa",
+          "quantityType": "stress",
+          "value": 250,
+          "latex": "\\tau_y = 250\\,\\mathrm{MPa}"
+        },
+        {
+          "id": "tangent_shear_modulus",
+          "name": "Post-yield tangent shear modulus",
+          "symbol": "G_t",
+          "unit": "MPa",
+          "quantityType": "modulus",
+          "value": 6000,
+          "latex": "G_t = 6000\\,\\mathrm{MPa}"
+        },
+        {
+          "id": "working_shear_stress",
+          "name": "Working shear stress",
+          "symbol": "\\tau",
+          "unit": "MPa",
+          "quantityType": "stress",
+          "value": 370,
+          "latex": "\\tau = 370\\,\\mathrm{MPa}"
+        }
+      ],
+      "target": {
+        "id": "residual_shear_strain",
+        "name": "Residual shear strain",
+        "symbol": "\\gamma_r",
+        "unit": "rad",
+        "quantityType": "strain"
+      },
+      "visual": {
+        "type": "diagram2d/v1",
+        "altText": "A shear stress versus shear strain diagram with a steep elastic line to yield, a shallower post-yield line to the working stress, and an unloading line parallel to the initial elastic segment ending at positive residual strain.",
+        "viewBox": [
+          0,
+          0,
+          540,
+          340
+        ],
+        "primitives": [
+          {
+            "kind": "arrow",
+            "x1": 75,
+            "y1": 270,
+            "x2": 490,
+            "y2": 270,
+            "label": "shear strain gamma"
+          },
+          {
+            "kind": "arrow",
+            "x1": 75,
+            "y1": 270,
+            "x2": 75,
+            "y2": 35,
+            "label": "shear stress tau"
+          },
+          {
+            "kind": "polyline",
+            "points": [
+              [
+                75,
+                270
+              ],
+              [
+                145,
+                120
+              ],
+              [
+                405,
+                60
+              ]
+            ],
+            "label": "loading path"
+          },
+          {
+            "kind": "line",
+            "x1": 405,
+            "y1": 60,
+            "x2": 285,
+            "y2": 270,
+            "label": "unloading path"
+          },
+          {
+            "kind": "point",
+            "x": 145,
+            "y": 120,
+            "label": "yield"
+          },
+          {
+            "kind": "point",
+            "x": 405,
+            "y": 60,
+            "label": "working stress"
+          },
+          {
+            "kind": "point",
+            "x": 285,
+            "y": 270,
+            "label": "residual gamma"
+          },
+          {
+            "kind": "text",
+            "x": 150,
+            "y": 104,
+            "text": "tau_y = 250 MPa"
+          },
+          {
+            "kind": "text",
+            "x": 350,
+            "y": 45,
+            "text": "tau = 370 MPa"
+          },
+          {
+            "kind": "text",
+            "x": 255,
+            "y": 300,
+            "text": "gamma_r"
+          }
+        ]
+      },
+      "allowedFormulaIds": [
+        "elastic_shear_strain",
+        "post_yield_shear_strain_increment"
+      ],
+      "allowedConversionIds": [],
+      "solutionPath": [
+        {
+          "id": "calculate_yield_shear_strain",
+          "kind": "formula",
+          "title": "Calculate the elastic shear strain at yield",
+          "formulaId": "elastic_shear_strain",
+          "bindings": {
+            "shearStress": "yield_shear_stress",
+            "shearModulus": "initial_shear_modulus"
+          },
+          "output": {
+            "id": "yield_shear_strain",
+            "name": "Shear strain at yield",
+            "symbol": "\\gamma_y",
+            "unit": "rad",
+            "quantityType": "strain",
+            "value": 0.003125
+          },
+          "teaching": {
+            "whyNow": "The total strain at the working point starts with the elastic strain accumulated up to yield.",
+            "whatToNotice": "Yield lies on the initial steep segment, whose slope is G.",
+            "whyThisOperation": "On the elastic segment, gamma equals tau divided by G.",
+            "inputMeaning": "Use the yield stress and initial shear modulus, not the final working stress or tangent slope.",
+            "resultUse": "This is the first part of the total strain at the working point.",
+            "commonMistakes": [
+              "Using 370 MPa before accounting for the change in slope at yield.",
+              "Dividing by G_t on the elastic portion."
+            ]
+          }
+        },
+        {
+          "id": "calculate_post_yield_increment",
+          "kind": "formula",
+          "title": "Calculate the post-yield shear strain increment",
+          "formulaId": "post_yield_shear_strain_increment",
+          "bindings": {
+            "workingShearStress": "working_shear_stress",
+            "yieldShearStress": "yield_shear_stress",
+            "tangentShearModulus": "tangent_shear_modulus"
+          },
+          "output": {
+            "id": "post_yield_strain_increment",
+            "name": "Post-yield shear strain increment",
+            "symbol": "\\Delta\\gamma_p",
+            "unit": "rad",
+            "quantityType": "strain",
+            "value": 0.02
+          },
+          "teaching": {
+            "whyNow": "The material is loaded above yield, so the additional stress belongs to the second segment.",
+            "whatToNotice": "The working point is 120 MPa above the 250 MPa yield point.",
+            "whyThisOperation": "Subtracting tau_y isolates the stress carried along the tangent segment; divide it by G_t for that strain increment.",
+            "inputMeaning": "Use 370 MPa, 250 MPa, and the 6000 MPa post-yield slope.",
+            "resultUse": "Add this increment to the yield strain to obtain the total strain at the working point.",
+            "commonMistakes": [
+              "Dividing 370 MPa directly by 6000 MPa.",
+              "Subtracting strain values instead of stresses."
+            ]
+          }
+        },
+        {
+          "id": "add_total_shear_strain",
+          "kind": "basicMath",
+          "title": "Add elastic and post-yield strain",
+          "mathOperation": "add",
+          "bindings": {
+            "left": "yield_shear_strain",
+            "right": "post_yield_strain_increment"
+          },
+          "output": {
+            "id": "total_shear_strain",
+            "name": "Total shear strain at working stress",
+            "symbol": "\\gamma_{total}",
+            "unit": "rad",
+            "quantityType": "strain",
+            "value": 0.023125
+          },
+          "teaching": {
+            "whyNow": "The path to the working point contains both the elastic segment and the post-yield segment.",
+            "whatToNotice": "The diagram reaches yield first, then continues along a different slope.",
+            "whyThisOperation": "Total strain is the accumulated strain from both segments.",
+            "inputMeaning": "Add gamma_y and the post-yield increment, both in radians.",
+            "resultUse": "The total strain is the starting point for unloading.",
+            "commonMistakes": [
+              "Using only the post-yield increment as total strain.",
+              "Adding the stresses rather than the strains."
+            ]
+          }
+        },
+        {
+          "id": "calculate_elastic_recovery",
+          "kind": "formula",
+          "title": "Calculate the elastic recovery during unloading",
+          "formulaId": "elastic_shear_strain",
+          "bindings": {
+            "shearStress": "working_shear_stress",
+            "shearModulus": "initial_shear_modulus"
+          },
+          "output": {
+            "id": "elastic_recovery_strain",
+            "name": "Elastic recovery strain",
+            "symbol": "\\gamma_{rec}",
+            "unit": "rad",
+            "quantityType": "strain",
+            "value": 0.004625
+          },
+          "teaching": {
+            "whyNow": "Unloading travels back along a line parallel to the initial elastic slope.",
+            "whatToNotice": "The problem explicitly says unloading follows the initial elastic slope G.",
+            "whyThisOperation": "The recoverable strain from 370 MPa is tau divided by the initial shear modulus.",
+            "inputMeaning": "Use the full working stress and initial G for the unloading recovery, not G_t.",
+            "resultUse": "Subtract this recoverable strain from total strain to find what remains permanently.",
+            "commonMistakes": [
+              "Using the tangent post-yield modulus to unload.",
+              "Subtracting the recovery from stress instead of strain."
+            ]
+          }
+        },
+        {
+          "id": "calculate_residual_shear_strain",
+          "kind": "basicMath",
+          "title": "Subtract elastic recovery from total strain",
+          "mathOperation": "subtract",
+          "bindings": {
+            "left": "total_shear_strain",
+            "right": "elastic_recovery_strain"
+          },
+          "output": {
+            "id": "residual_shear_strain",
+            "name": "Residual shear strain",
+            "symbol": "\\gamma_r",
+            "unit": "rad",
+            "quantityType": "strain",
+            "value": 0.0185
+          },
+          "teaching": {
+            "whyNow": "Total strain contains both recoverable elastic strain and permanent residual strain.",
+            "whatToNotice": "The unloading line intercepts the strain axis to the right of zero.",
+            "whyThisOperation": "Residual strain equals total strain minus the elastic strain recovered on unloading.",
+            "inputMeaning": "Subtract gamma_rec from gamma_total, not the other way around.",
+            "resultUse": "This is the requested residual shear strain.",
+            "commonMistakes": [
+              "Reporting total strain rather than residual strain.",
+              "Getting a negative residual strain by reversing the subtraction."
+            ]
+          }
+        },
+        {
+          "id": "state_residual_shear_strain",
+          "kind": "finalAnswer",
+          "title": "State the residual shear strain",
+          "bindings": {
+            "answer": "residual_shear_strain"
+          },
+          "expectedLatex": "\\gamma_r = 0.0185\\,\\mathrm{rad}",
+          "teaching": {
+            "whyNow": "The unloading recovery has been removed from the strain at the working point.",
+            "whatToNotice": "A positive strain-axis intercept after unloading represents a permanent residual strain.",
+            "whyThisOperation": "The final statement reports the permanent deformation left after the load is removed.",
+            "inputMeaning": "Use the calculated residual strain, not the recoverable component.",
+            "resultUse": "The problem is complete.",
+            "commonMistakes": [
+              "Calling the residual strain elastic recovery.",
+              "Reporting strain in MPa."
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
