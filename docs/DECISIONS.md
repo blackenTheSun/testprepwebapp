@@ -62,5 +62,5 @@ Decisions made while implementing the v0.2 local-offline SOW, with the reason fo
 | # | Decision | Why |
 | --- | --- | --- |
 | D36 | E2E tests open the **built file over `file://` with the browser offline**, one test per acceptance criterion. | Tests the real deliverable the way Amy uses it. |
-| D37 | CI runs Chromium, Firefox and WebKit on Linux. Locally, Chromium plus installed **Microsoft Edge** (`--project=msedge`). | On this Windows machine the downloaded Playwright Firefox/WebKit builds fail to launch (`spawn UNKNOWN`), which is an OS policy on unsigned binaries, not an app issue. |
+| D37 | CI runs Chromium, Firefox and WebKit on Linux. Locally, Chromium plus installed **Microsoft Edge** (`--project=msedge`). WebKit runs without Playwright's `offline` flag (which breaks `file://` navigation in WebKit); every browser aborts http(s) via `page.route`, asserts none was attempted, and the CSP forbids it. | On this Windows machine the downloaded Playwright Firefox/WebKit builds fail to launch (`spawn UNKNOWN`), which is an OS policy on unsigned binaries, not an app issue. |
 | D38 | `index.html` ships through **GitHub Releases** (tag `v*`) and as a CI artifact; `dist/` is not committed. **(agreed)** | Keeps the repo source-only. |
