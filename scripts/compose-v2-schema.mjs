@@ -184,6 +184,9 @@ export function composeV2(v1) {
       },
       options: { type: 'array', minItems: 2, items: nonEmpty },
       answers: { type: 'object', additionalProperties: nonEmpty },
+      // When true, a label may be the correct answer for more than one callout and every piece
+      // stays in the bank after use.
+      allowReuse: { type: 'boolean' },
       explanation: str,
     },
   };

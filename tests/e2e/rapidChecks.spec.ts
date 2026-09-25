@@ -15,6 +15,12 @@ const card = (page: Page) => page.locator('section.card');
 const submit = (page: Page) => page.getByRole('button', { name: 'Submit' }).click();
 const next = (page: Page) => page.getByRole('button', { name: /^(Next card|See summary)$/ }).click();
 
+const bankPieces = (page: Page) => card(page).locator('.piece-bank [data-piece]');
+const slot = (page: Page, id: string) => card(page).locator(`[data-slot="${id}"]`);
+/** Drags a bank piece onto a socket with real pointer movement. */
+const dragPiece = (page: Page, term: string, to: string) => page.locator(`.piece-bank [data-piece="${term}"]`).first().dragTo(slot(page, to));
+const dragFromSlot = (page: Page, from: string, to: string) => slot(page, from).dragTo(slot(page, to), { sourcePosition: { x: 120, y: 22 } });
+
 async function startSet(page: Page, title: string) {
   await page.getByRole('button', { name: `Start ${title}` }).click();
   await expect(card(page)).toBeVisible();
@@ -118,7 +124,7 @@ test('Visual closed answers: identification and true/false score against authore
   await expect(card(page)).toContainText('The third shape is a triangle. The square is the second shape.');
 });
 
-test('Diagram label match: 5 markers, one-to-one dropdowns from 8 terms, per-pair score, correct overlay', async ({ page }) => {
+test('Diagram label match: 5 markers, drag-and-drop puzzle pieces from 8 terms, one-to-one, per-pair score, correct overlay', async ({ page }) => {
   await openApp(page);
   await loadFile(page, PLACEHOLDER);
   await startSet(page, 'PLACEHOLDER Shapes and scenes');
@@ -126,26 +132,57 @@ test('Diagram label match: 5 markers, one-to-one dropdowns from 8 terms, per-pai
   await expect(card(page)).toHaveAttribute('data-item-type', 'matching');
 
   await expect(card(page).locator('.callout')).toHaveCount(5);
-  const selects = card(page).locator('select');
-  await expect(selects).toHaveCount(5);
-  await expect(selects.first().locator('option:not([value=""])')).toHaveCount(8); // bank includes 3 decoys
+  await expect(card(page).locator('[data-slot]')).toHaveCount(5); // one socket per callout
+  await expect(bankPieces(page)).toHaveCount(8); // bank includes 3 decoys
+  await expect(card(page).locator('select')).toHaveCount(0);
 
-  const pick = (id: string, term: string) => page.getByLabel(`Label for callout ${id}`).selectOption(term);
-  await pick('A', 'circle');
-  // A label cannot be selected twice.
-  await expect(page.getByLabel('Label for callout B').locator('option', { hasText: /^circle$/ })).toHaveCount(0);
+  // Mouse drag from the bank into a socket.
+  await dragPiece(page, 'circle', 'A');
+  await expect(slot(page, 'A')).toHaveAttribute('aria-label', /holds circle/);
+  // A placed piece leaves the bank, so a label cannot be used twice.
+  await expect(bankPieces(page)).toHaveCount(7);
+  await expect(page.locator('[data-piece="circle"]')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Submit' })).toBeDisabled();
-  await pick('B', 'square');
-  await pick('C', 'triangle');
-  await pick('D', 'pentagon'); // decoy
-  await pick('E', 'star');
+
+  // Tap-to-place: tap a piece, then a socket.
+  await page.locator('[data-piece="triangle"]').click();
+  await slot(page, 'B').click();
+  // Move it between sockets by dragging, then drag another into B.
+  await dragFromSlot(page, 'B', 'C');
+  await expect(slot(page, 'C')).toHaveAttribute('aria-label', /holds triangle/);
+  await expect(slot(page, 'B')).toHaveAttribute('aria-label', /empty/);
+  await dragPiece(page, 'square', 'B');
+
+  // Keyboard: Enter on a piece picks it up, Enter on a socket places it.
+  await page.locator('[data-piece="pentagon"]').focus(); // a decoy
+  await page.keyboard.press('Enter');
+  await slot(page, 'D').focus();
+  await page.keyboard.press('Enter');
+  await dragPiece(page, 'star', 'E');
   await submit(page);
 
   await expect(card(page).locator('.feedback-status')).toHaveText('Partly correct: 4 of 5');
+  await expect(slot(page, 'D')).toHaveAttribute('aria-label', /holds pentagon, incorrect/);
+  await expect(slot(page, 'A')).toHaveAttribute('aria-label', /holds circle, correct/);
   await expect(card(page).locator('.callout.revealed')).toHaveCount(5);
   await expect(card(page).locator('.callout.revealed.wrong')).toHaveCount(1);
   await expect(card(page).locator('.callout[data-callout="D"] .callout-term')).toHaveText('✗ hexagon');
   await expect(card(page).locator('.callout[data-callout="A"] .callout-term')).toHaveText('✓ circle');
+});
+
+test('Label reuse: with allowReuse a piece can fill several sockets and still scores correct', async ({ page }) => {
+  await openApp(page);
+  await loadFile(page, PLACEHOLDER);
+  await startSet(page, 'PLACEHOLDER Labels used more than once');
+  await expect(bankPieces(page)).toHaveCount(5);
+  await dragPiece(page, 'rectangle', 'A');
+  await dragPiece(page, 'rectangle', 'C');
+  await expect(bankPieces(page)).toHaveCount(5); // pieces are copies: never used up
+  await dragPiece(page, 'circle', 'B');
+  await dragPiece(page, 'triangle', 'D');
+  await submit(page);
+  await expect(card(page).locator('.feedback-status')).toHaveText('Correct');
+  await expect(card(page)).toContainText('"rectangle" is used twice');
 });
 
 test('Rapid visual set: 8 cards in authored order, visible per-card timer, expiry recorded and retried', async ({ page }) => {
@@ -196,9 +233,7 @@ test('Deliberate recall: reveals the authored key and only accepts Got It or Rev
   await loadFile(page, PLACEHOLDER);
   await startSet(page, 'PLACEHOLDER Shapes and scenes');
   await skipStandardCards(page, 6);
-  for (const [k, v] of Object.entries({ A: 'circle', B: 'square', C: 'triangle', D: 'hexagon', E: 'star' })) {
-    await page.getByLabel(`Label for callout ${k}`).selectOption(v);
-  }
+  for (const [k, v] of Object.entries({ A: 'circle', B: 'square', C: 'triangle', D: 'hexagon', E: 'star' })) await dragPiece(page, v, k);
   await submit(page);
   await next(page);
 

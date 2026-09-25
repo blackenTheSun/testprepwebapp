@@ -302,6 +302,8 @@ export interface MatchingItemJson extends ItemCommon {
   options: string[];
   /** Callout id → correct term. */
   answers: Record<string, string>;
+  /** Labels may be correct for several callouts, and pieces stay in the bank after use. */
+  allowReuse?: boolean;
   explanation?: string;
 }
 

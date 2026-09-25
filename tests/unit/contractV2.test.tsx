@@ -47,6 +47,7 @@ describe('guided-test-file.local/v2 contract', () => {
     expect(test.quickCheckSets.map((s) => [s.id, s.items.length])).toEqual([
       ['shapes-standard', 8],
       ['shapes-rapid', 8],
+      ['labels-reuse', 1],
     ]);
     const path = new AuthoredPath(test.problems[0]);
     expect(path.results[0].computedValue).toBeCloseTo(2, 12);
@@ -88,7 +89,7 @@ describe('guided-test-file.local/v2 contract', () => {
     for (const file of files) expect(loader.fromText(readRepoFile(`tests/fixtures/invalid-v2/${file}`), file).ok, file).toBe(false);
     const rapidOnly = loader.fromText(readRepoFile('tests/fixtures/v2/rapid-only.json'), 'rapid-only.json');
     expect(rapidOnly.ok && rapidOnly.test.problems.length).toBe(0);
-    expect(rapidOnly.ok && rapidOnly.test.quickCheckSets.length).toBe(2);
+    expect(rapidOnly.ok && rapidOnly.test.quickCheckSets.length).toBe(3);
   });
 
   it('names the supported versions for an unknown apiVersion', () => {
@@ -183,9 +184,17 @@ describe('callouts and matching', () => {
       expect.arrayContaining([
         '/quickCheckSets/0/items/6/answers Missing answer for callout "E"',
         '/quickCheckSets/0/items/6/answers/D "octagon" is not in the label bank',
-        '/quickCheckSets/0/items/6/answers/B "circle" is already the correct label for callout "A"; each label can be correct only once',
+        '/quickCheckSets/0/items/6/answers/B "circle" is already the correct label for callout "A"; each label can be correct only once (set "allowReuse": true to allow this)',
       ]),
     );
+  });
+
+  it('accepts a label that is correct for several callouts only when allowReuse is set', () => {
+    const reuse = (t: TestFileV2Json) => t.quickCheckSets![2].items[0] as MatchingItemJson;
+    expect(issuesAfter(() => undefined).errors).toEqual([]);
+    expect(issuesAfter((t) => delete reuse(t).allowReuse).errors).toEqual([
+      '/quickCheckSets/2/items/0/answers/C "rectangle" is already the correct label for callout "A"; each label can be correct only once (set "allowReuse": true to allow this)',
+    ]);
   });
 
   it('rejects duplicate terms, prompts without callouts, and pair visuals', () => {

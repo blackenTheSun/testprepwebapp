@@ -162,16 +162,50 @@ export class MatchingItem extends QuickCheckItem<MatchingItemJson, MatchingRespo
     return this.json.answers[calloutId];
   }
 
-  /** Terms still available for one callout: its own current pick plus anything not used elsewhere. */
-  availableTerms(selections: Readonly<Record<string, string>>, calloutId: string): string[] {
-    const usedElsewhere = new Set(Object.entries(selections).filter(([id, term]) => id !== calloutId && term).map(([, term]) => term));
-    return this.json.options.filter((term) => !usedElsewhere.has(term));
+  /** A label may be placed on several callouts (pieces are never used up). */
+  get allowReuse(): boolean {
+    return this.json.allowReuse === true;
   }
 
-  /** True when every callout has a term and no term is used twice. */
+  /**
+   * Places `term` on callout `to`. `from` is the callout it was dragged from, or undefined when it
+   * came from the bank. Without reuse a term lives on at most one callout: moving a piece onto an
+   * occupied slot swaps the two pieces, and a piece displaced by one from the bank returns to the
+   * bank. With reuse, bank pieces are copies and moving between slots just moves.
+   */
+  place(selections: Readonly<Record<string, string>>, term: string, to: string, from?: string): Record<string, string> {
+    const next = { ...selections };
+    if (from === to) return next;
+    const displaced = next[to];
+    if (from !== undefined) {
+      if (!this.allowReuse && displaced) next[from] = displaced;
+      else delete next[from];
+    } else if (!this.allowReuse) {
+      for (const [id, placed] of Object.entries(next)) if (placed === term) delete next[id];
+    }
+    next[to] = term;
+    return next;
+  }
+
+  /** Takes the piece off callout `id` (it returns to the bank). */
+  remove(selections: Readonly<Record<string, string>>, id: string): Record<string, string> {
+    const next = { ...selections };
+    delete next[id];
+    return next;
+  }
+
+  /** Terms not placed on any callout (the whole bank when reuse is allowed). */
+  bankTerms(selections: Readonly<Record<string, string>>): string[] {
+    if (this.allowReuse) return this.json.options;
+    const placed = new Set(Object.values(selections).filter(Boolean));
+    return this.json.options.filter((term) => !placed.has(term));
+  }
+
+  /** True when every callout has a term (and, without reuse, no term is used twice). */
   isComplete(selections: Readonly<Record<string, string>>): boolean {
     const picked = this.json.prompts.map((p) => selections[p.id]).filter(Boolean);
-    return picked.length === this.json.prompts.length && new Set(picked).size === picked.length;
+    if (picked.length !== this.json.prompts.length) return false;
+    return this.allowReuse || new Set(picked).size === picked.length;
   }
 
   score(response: MatchingResponse): ItemResult {

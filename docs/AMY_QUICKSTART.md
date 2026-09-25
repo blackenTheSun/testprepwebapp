@@ -26,7 +26,7 @@ Some test files also have **Visual Rapid Checks**, listed above the problems. To
 
 1. Click **Start** on a check.
 2. Each card shows a picture and a question. Pick an answer and click **Submit** (or press Enter).
-   - **Matching cards:** the picture has lettered markers. Choose a label for each letter from its dropdown. Once a label is used, it disappears from the other dropdowns. There are more labels than letters, so some are decoys.
+   - **Matching cards:** the picture has lettered markers, and each prompt has a puzzle-piece socket under it. Drag a label piece from the **Label pieces** bank into each socket. (You can also tap a piece and then tap a socket, or use Tab and Enter.) Drag a placed piece to another socket to move it, or back to the bank to remove it. There are more labels than sockets, so some are decoys. Usually each label is used once; if the card says a label can be used more than once, the pieces stay in the bank.
    - **True or false:** decide whether the statement about the picture is right.
    - **Recall cards:** answer on paper or your iPad first, then click **Reveal reference**, compare, and mark **Got It** or **Review**.
 3. **Timed cards** (rapid rounds) show a countdown in the corner. If it runs out, the card counts as unanswered; click **Show answer** to see it now, or **Next card** to see it at the end.

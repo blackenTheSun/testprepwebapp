@@ -8,6 +8,7 @@ import {
   TrueFalseItem,
 } from '../../engine/quickcheck/items';
 import type { CardRecord, QuickCheckRun } from '../../engine/quickcheck/run';
+import { MatchingBoard } from './MatchingBoard';
 import { type CalloutReveal, ItemVisualView } from '../../render/itemVisual';
 
 interface ControlsProps<T extends QuickCheckItem> {
@@ -77,7 +78,10 @@ function TrueFalseControls({ item, run, locked }: ControlsProps<TrueFalseItem>) 
   );
 }
 
-/** One dropdown per callout. A term picked for one callout is not offered for the others. */
+/**
+ * Drag labels onto the slot under each prompt (see MatchingBoard). Without `allowReuse` each label
+ * can sit on only one slot; Submit waits until every slot is filled.
+ */
 function MatchingControls({ item, run, locked }: ControlsProps<MatchingItem>) {
   const [selections, setSelections] = useState<Record<string, string>>({});
   const record = run.record(item.id);
@@ -85,31 +89,7 @@ function MatchingControls({ item, run, locked }: ControlsProps<MatchingItem>) {
   return (
     <AnswerForm ready={item.isComplete(selections)} locked={locked} onSubmit={() => run.submit({ kind: 'matching', selections })}>
       <legend className="sr-only">{item.promptText}</legend>
-      <div className="match-grid">
-        {item.prompts.map((prompt) => {
-          const id = `match-${item.id}-${prompt.id}`;
-          return (
-            <div key={prompt.id} className="match-row">
-              <label htmlFor={id} className="match-label">
-                <span className="callout-chip">{prompt.id}</span> {prompt.text}
-              </label>
-              <select
-                id={id}
-                aria-label={`Label for callout ${prompt.id}`}
-                value={shown[prompt.id] ?? ''}
-                onChange={(e) => setSelections((s) => ({ ...s, [prompt.id]: e.target.value }))}
-              >
-                <option value="">Choose a label…</option>
-                {item.availableTerms(selections, prompt.id).map((term) => (
-                  <option key={term} value={term}>
-                    {term}
-                  </option>
-                ))}
-              </select>
-            </div>
-          );
-        })}
-      </div>
+      <MatchingBoard item={item} selections={shown} onChange={setSelections} locked={locked} result={record?.result} />
     </AnswerForm>
   );
 }

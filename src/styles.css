@@ -1204,3 +1204,206 @@ polygon.sc-highlight {
   margin-top: 1rem;
   color: var(--muted);
 }
+
+/* ---- Drag-and-drop matching (puzzle pieces) ------------------------------------------ */
+
+:root {
+  --piece-fill: #dbe6fb;
+  --piece-stroke: #2458c6;
+  --piece-text: #13254d;
+  --host-fill: #2458c6;
+  --host-text: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --piece-fill: #24375c;
+    --piece-stroke: #6f9cff;
+    --piece-text: #e6ebf2;
+    --host-fill: #6f9cff;
+    --host-text: #0b1220;
+  }
+}
+
+.matching-board {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  justify-content: start;
+  gap: 1rem 3rem;
+  align-items: start;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (max-width: 640px) {
+  .matching-board {
+    grid-template-columns: 1fr;
+  }
+}
+.slot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.slot-row {
+  display: grid;
+  gap: 0.25rem;
+}
+.slot-prompt {
+  font-weight: 600;
+}
+/* The slot sits under its prompt, indented slightly to the right. */
+.slot {
+  position: relative;
+  margin-left: 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: none;
+}
+.slot:hover:not([aria-disabled='true']) {
+  background: none;
+}
+.slot-host {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.slot-host path {
+  fill: var(--host-fill);
+}
+.slot-host text {
+  fill: var(--host-text);
+  font: 700 15px system-ui, sans-serif;
+}
+.slot-bed {
+  position: absolute;
+  top: 0;
+}
+.slot-outline path {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.slot.targetable .slot-outline path,
+.matching-board.dragging .slot .slot-outline path {
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+.slot.ok .slot-host path {
+  fill: var(--ok);
+}
+.slot.wrong .slot-host path {
+  fill: var(--error);
+}
+.slot.ok .piece-shape path {
+  stroke: var(--ok);
+  stroke-width: 2.5;
+}
+.slot.wrong .piece-shape path {
+  stroke: var(--error);
+  stroke-width: 2.5;
+}
+.slot-mark {
+  position: absolute;
+  right: -1.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+}
+.slot-mark.ok {
+  color: var(--ok);
+}
+.slot-mark.wrong {
+  color: var(--error);
+}
+
+.piece {
+  position: relative;
+  display: block;
+}
+.piece-shape {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.piece-shape path {
+  fill: var(--piece-fill);
+  stroke: var(--piece-stroke);
+  stroke-width: 1.5;
+}
+.piece-text {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--piece-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.1;
+  overflow: hidden;
+}
+.piece.held .piece-shape path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px var(--piece-stroke));
+}
+.piece.lifted {
+  opacity: 0.35;
+}
+.piece.ghost .piece-shape path {
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 30%));
+}
+.drag-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.piece-bank {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem 0.75rem;
+  min-height: 6rem;
+  background: var(--surface-2);
+}
+.bank-title {
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+.bank-pieces {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+}
+.piece-button {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 8px;
+}
+.piece-button:hover:not(:disabled) {
+  background: none;
+}
+.piece-button:hover:not(:disabled) .piece-shape path {
+  stroke-width: 2.5;
+}
+.matching-board.dragging,
+.matching-board.dragging * {
+  cursor: grabbing;
+}
+.matching-board.locked .piece-button,
+.matching-board.locked .slot {
+  cursor: default;
+}
+/* After submission the slots show the result at full strength; unused bank pieces stay dimmed. */
+.matching-board .slot:disabled {
+  opacity: 1;
+}

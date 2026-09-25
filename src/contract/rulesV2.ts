@@ -156,7 +156,7 @@ export class SingleChoiceRule extends QuickCheckRule {
 /**
  * Diagram-label matching: one prompt per callout, a term bank at least as large as the callout
  * count (decoys allowed), a complete answer map, answers drawn from the bank, and no term used as
- * the correct answer twice.
+ * the correct answer twice unless the item sets `allowReuse`.
  */
 export class MatchingRule extends QuickCheckRule {
   readonly name = 'matching';
@@ -195,7 +195,7 @@ export class MatchingRule extends QuickCheckRule {
       }
       if (!bank.has(answer)) report.error(this.name, `${path}/answers/${id}`, `"${answer}" is not in the label bank`);
       const prior = used.get(answer);
-      if (prior) report.error(this.name, `${path}/answers/${id}`, `"${answer}" is already the correct label for callout "${prior}"; each label can be correct only once`);
+      if (prior && !item.allowReuse) report.error(this.name, `${path}/answers/${id}`, `"${answer}" is already the correct label for callout "${prior}"; each label can be correct only once (set "allowReuse": true to allow this)`);
       else used.set(answer, id);
     }
     for (const key of Object.keys(item.answers)) {

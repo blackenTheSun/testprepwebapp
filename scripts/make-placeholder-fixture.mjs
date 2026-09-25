@@ -373,6 +373,50 @@ const fixture = {
         },
       ],
     },
+    {
+      id: 'labels-reuse',
+      title: 'PLACEHOLDER Labels used more than once',
+      instructions: 'Drag a label onto each marked shape. A label can be used more than once here.',
+      feedbackMode: 'immediate',
+      presentationMode: 'standard',
+      items: [
+        {
+          id: 'match-reuse',
+          type: 'matching',
+          prompt: 'Name each marked shape. Some shapes share a name.',
+          allowReuse: true,
+          visual: {
+            kind: 'typedScene',
+            scene: {
+              type: 'diagram2d/v1',
+              altText: 'Four outlined shapes in a row, left to right: a rectangle, a circle, a second rectangle, and a triangle.',
+              viewBox: [0, 0, 400, 160],
+              primitives: [
+                { kind: 'rect', x: 20, y: 60, width: 70, height: 50 },
+                { kind: 'circle', x: 150, y: 85, radius: 28 },
+                { kind: 'rect', x: 210, y: 60, width: 70, height: 50 },
+                { kind: 'polyline', points: [[330, 110], [360, 58], [390, 110], [330, 110]] },
+              ],
+            },
+            callouts: [
+              { id: 'A', xPct: 13.75, yPct: 18 },
+              { id: 'B', xPct: 37.5, yPct: 18 },
+              { id: 'C', xPct: 61.25, yPct: 18 },
+              { id: 'D', xPct: 90, yPct: 18 },
+            ],
+          },
+          prompts: [
+            { id: 'A', text: 'Shape A' },
+            { id: 'B', text: 'Shape B' },
+            { id: 'C', text: 'Shape C' },
+            { id: 'D', text: 'Shape D' },
+          ],
+          options: ['rectangle', 'circle', 'triangle', 'square', 'ellipse'],
+          answers: { A: 'rectangle', B: 'circle', C: 'rectangle', D: 'triangle' },
+          explanation: 'A and C are both rectangles, so "rectangle" is used twice. Square and ellipse are decoys.',
+        },
+      ],
+    },
   ],
 };
 

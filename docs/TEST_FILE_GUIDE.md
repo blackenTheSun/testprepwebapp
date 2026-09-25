@@ -273,9 +273,20 @@ Rules (the app rejects the file otherwise):
 - The `visual` is one `typedScene` or `image` (not a `pair`), with at least 2 `callouts`.
 - There is exactly one prompt per callout, using the same ids.
 - `options` is the label bank: unique terms, at least as many as there are callouts. Extra terms are decoys.
-- `answers` gives every callout a term from the bank, and no term is correct for two callouts.
+- `answers` gives every callout a term from the bank. A term may be correct for two or more callouts (for example two rectangles) only if the item sets `"allowReuse": true`.
 
-Amy picks a term from a dropdown for each marker. A term chosen for one marker can't be chosen for another.
+Amy sees a puzzle-piece socket under each prompt and a bank of label pieces. She drags a piece into each socket (mouse, pen or touch), or taps or presses Enter on a piece and then on a socket. Each piece has one knob that fits the socket's notch.
+
+- Without `allowReuse`: a placed piece leaves the bank, so each label is used at most once.
+- With `"allowReuse": true`: every piece stays in the bank and can fill several sockets. The bank doesn't show how many times a label is needed.
+
+```json
+{ "id": "label-shapes", "type": "matching", "allowReuse": true,
+  "visual": { ..., "callouts": [ {"id":"A",...}, {"id":"B",...}, {"id":"C",...} ] },
+  "prompts": [ {"id":"A","text":"Shape A"}, {"id":"B","text":"Shape B"}, {"id":"C","text":"Shape C"} ],
+  "options": [ "rectangle", "circle", "square" ],
+  "answers": { "A": "rectangle", "B": "circle", "C": "rectangle" } }
+```
 
 **Deliberate recall: `recall`** (paper first, never graded)
 
@@ -327,7 +338,7 @@ For `sin`/`cos`/`tan`, `angleUnit` is the unit of the input angle. For `asin`/`a
 
 - [ ] `apiVersion` is `guided-test-file.local/v2`, and there is at least one problem or quick-check set.
 - [ ] A visual item is used where recognition is the skill; recall items are kept to a few.
-- [ ] Matching items have clear callouts, more terms than markers, plausible decoys, and each correct term used once.
+- [ ] Matching items have clear callouts, more terms than markers and plausible decoys. Each correct term is used once, unless the item sets `allowReuse` because a label genuinely fits several markers.
 - [ ] Every picture is PNG/JPEG via `npm run embed-image`, with alt text that describes it for someone who can't see it.
 - [ ] Every trig op declares `angleUnit`.
 - [ ] Every item Amy can miss has an `explanation` (or `keyPoints` for recall) that teaches the correction.
@@ -336,4 +347,4 @@ For `sin`/`cos`/`tan`, `angleUnit` is the unit of the input angle. For `asin`/`a
 
 ### 9.6 ChatGPT prompt (v2 rapid checks)
 
-> Produce one valid JSON object conforming to `guided-test-file.local/v2` (schema and field guide attached). Create `quickCheckSets` only (no `problems` unless I ask), using item types `singleChoice`, `trueFalse`, `matching` and `recall` exactly as documented. Describe every picture as a `typedScene` using only the documented `diagram2d/v1` or `scene3d/v1` primitives (including `sphere`, `wireframe` boxes and `highlight`). Where I have given you a real image block, reuse it exactly. Never invent image data, URLs or file paths. Every option id and item id is at least 2 characters. Matching items: one prompt per callout, a larger term bank with plausible decoys, and each correct term used once. Every closed-answer item has an `explanation` that teaches the correction; every recall item has `keyPoints`. Declare `angleUnit` on any trig. Output only the JSON.
+> Produce one valid JSON object conforming to `guided-test-file.local/v2` (schema and field guide attached). Create `quickCheckSets` only (no `problems` unless I ask), using item types `singleChoice`, `trueFalse`, `matching` and `recall` exactly as documented. Describe every picture as a `typedScene` using only the documented `diagram2d/v1` or `scene3d/v1` primitives (including `sphere`, `wireframe` boxes and `highlight`). Where I have given you a real image block, reuse it exactly. Never invent image data, URLs or file paths. Every option id and item id is at least 2 characters. Matching items: one prompt per callout, a term bank at least as large as the number of callouts with plausible decoys, and each correct term used once. If a term genuinely fits several callouts, set `"allowReuse": true` on that item. Every closed-answer item has an `explanation` that teaches the correction; every recall item has `keyPoints`. Declare `angleUnit` on any trig. Output only the JSON.

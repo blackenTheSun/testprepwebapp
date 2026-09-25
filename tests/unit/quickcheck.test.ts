@@ -44,14 +44,56 @@ describe('item scoring', () => {
     expect(partial.pairs?.D).toBe(false);
     expect(match.score({ kind: 'matching', selections: { A: 'star', B: 'circle', C: 'square', D: 'triangle', E: 'hexagon' } }).status).toBe('incorrect');
 
-    // A term chosen for A is not offered for B, but stays available to A itself.
-    const picks = { A: 'circle' };
-    expect(match.availableTerms(picks, 'B')).not.toContain('circle');
-    expect(match.availableTerms(picks, 'A')).toContain('circle');
-    expect(match.availableTerms(picks, 'B')).toHaveLength(7);
+    // A placed piece leaves the bank.
+    expect(match.bankTerms({ A: 'circle' })).not.toContain('circle');
+    expect(match.bankTerms({ A: 'circle' })).toHaveLength(7);
     expect(match.isComplete({ A: 'circle', B: 'square', C: 'triangle', D: 'hexagon' })).toBe(false);
     expect(match.isComplete({ A: 'circle', B: 'circle', C: 'triangle', D: 'hexagon', E: 'star' })).toBe(false);
     expect(match.isComplete(all)).toBe(true);
+  });
+});
+
+describe('matching placement (drag and drop)', () => {
+  const oneToOne = () => item<MatchingItem>(standard(), 'match-shapes');
+  const reuseSet = () => placeholderTest().quickCheckSets.find((s) => s.id === 'labels-reuse')!;
+  const reusable = () => item<MatchingItem>(reuseSet(), 'match-reuse');
+
+  it('places from the bank, and a displaced piece returns to the bank', () => {
+    const m = oneToOne();
+    let s = m.place({}, 'circle', 'A');
+    s = m.place(s, 'square', 'A');
+    expect(s).toEqual({ A: 'square' });
+    expect(m.bankTerms(s)).toContain('circle');
+  });
+
+  it('moves a piece between slots, swapping with an occupied slot', () => {
+    const m = oneToOne();
+    let s = m.place(m.place({}, 'circle', 'A'), 'square', 'B');
+    s = m.place(s, 'circle', 'C', 'A'); // move to an empty slot
+    expect(s).toEqual({ B: 'square', C: 'circle' });
+    s = m.place(s, 'circle', 'B', 'C'); // move onto an occupied slot: swap
+    expect(s).toEqual({ B: 'circle', C: 'square' });
+    expect(m.remove(s, 'B')).toEqual({ C: 'square' });
+  });
+
+  it('never lets one label sit on two slots without allowReuse', () => {
+    const m = oneToOne();
+    const s = m.place(m.place({}, 'circle', 'A'), 'circle', 'B');
+    expect(s).toEqual({ B: 'circle' });
+  });
+
+  it('with allowReuse keeps every piece in the bank and scores repeated labels', () => {
+    const m = reusable();
+    expect(m.allowReuse).toBe(true);
+    let s = m.place({}, 'rectangle', 'A');
+    s = m.place(s, 'rectangle', 'C');
+    expect(s).toEqual({ A: 'rectangle', C: 'rectangle' });
+    expect(m.bankTerms(s)).toHaveLength(5);
+    s = m.place(s, 'rectangle', 'D', 'C'); // moving a copy just moves it
+    expect(s).toEqual({ A: 'rectangle', D: 'rectangle' });
+    const answer = { A: 'rectangle', B: 'circle', C: 'rectangle', D: 'triangle' };
+    expect(m.isComplete(answer)).toBe(true);
+    expect(m.score({ kind: 'matching', selections: answer }).status).toBe('correct');
   });
 });
 
