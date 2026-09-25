@@ -1224,6 +1224,10 @@ polygon.sc-highlight {
   }
 }
 
+.matching-board,
+.matching-board * {
+  -webkit-user-drag: none;
+}
 .matching-board {
   display: grid;
   grid-template-columns: max-content max-content;

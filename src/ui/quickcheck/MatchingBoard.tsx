@@ -164,6 +164,9 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
   return (
     <div
       className={`matching-board${locked ? ' locked' : ''}${dragging ? ' dragging' : ''}`}
+      // Never let the browser start its own drag of the SVG or text (Safari/WebKit does), which
+      // would cancel our pointer drag and can even treat the drop as a navigation.
+      onDragStart={(e) => e.preventDefault()}
       onKeyDown={(e) => {
         if (e.key === 'Escape' && held) {
           setHeld(undefined);
