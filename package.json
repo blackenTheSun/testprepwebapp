@@ -1,6 +1,6 @@
 {
   "name": "guided-test-prep-local",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Offline, double-click guided test prep runtime for guided-test-file.local/v1 test files.",
   "type": "module",

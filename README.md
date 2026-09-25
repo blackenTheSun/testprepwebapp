@@ -2,6 +2,8 @@
 
 A single `index.html` that Amy double-clicks to practise technical test problems. She loads a test file, picks a problem, starts a timer, builds each step from dropdowns (formula, basic math, unit conversion, pre-authored derivative, final answer), and then reveals the authored solution path with its explanations.
 
+Since v0.3, test files can also hold **Visual Rapid Checks**: picture cards for identifying structures, true/false claims about a picture, labelling marked callouts from a term bank, and paper-first recall. They can run as timed rapid rounds, with a summary and "Retry Missed and Review".
+
 No server, account, database, network, or AI service. Test content lives entirely in JSON files that Brent writes outside the app (for example with ChatGPT).
 
 | For | Read |
@@ -9,7 +11,7 @@ No server, account, database, network, or AI service. Test content lives entirel
 | Amy | [docs/AMY_QUICKSTART.md](docs/AMY_QUICKSTART.md): two-minute instructions |
 | Brent, writing test files | [docs/TEST_FILE_GUIDE.md](docs/TEST_FILE_GUIDE.md): every field, visual primitives, and a ChatGPT prompt |
 | Developers | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DECISIONS.md](docs/DECISIONS.md) |
-| Scope and acceptance | [docs/handoff/Guided_Test_Prep_Local_Offline_SOW_v0.2.md](docs/handoff/Guided_Test_Prep_Local_Offline_SOW_v0.2.md), [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md), [docs/milestones/](docs/milestones/) |
+| Scope and acceptance | v0.2: [SOW](docs/handoff/Guided_Test_Prep_Local_Offline_SOW_v0.2.md), [plan](docs/IMPLEMENTATION_PLAN.md). v0.3 delta: [SOW](docs/handoff/v0.3/Guided_Test_Prep_Rapid_Knowledge_Checks_Update_SOW_v0.3.docx), [plan](docs/IMPLEMENTATION_PLAN_V0.3.md). Milestone reports: [docs/milestones/](docs/milestones/) (M0–M2, R0–R2) |
 
 ## Getting the app
 
@@ -17,7 +19,7 @@ Download `index.html` from the latest [GitHub Release](../../releases) (or the `
 
 ## Building from source
 
-Requires Node.js 20 or newer.
+Requires Node.js 22.6 or newer (the `embed-image` helper runs TypeScript directly with Node type stripping). CI uses Node 24.
 
 ```bash
 npm ci
@@ -27,17 +29,19 @@ npm ci
 npm run build
 ```
 
-This produces the one deliverable, `dist/index.html` (about 1.1 MB: app, styles, and KaTeX fonts all inlined).
+This produces the one deliverable, `dist/index.html` (about 1.5 MB: app, styles, KaTeX fonts, and both compiled schema validators, all inlined).
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
 | `npm run typecheck` | TypeScript check |
-| `npm test` | Unit tests (engine, validator, renderers, both reference fixtures) |
+| `npm test` | Unit tests (engine, both contracts, quick checks, renderers, all reference fixtures) |
 | `npm run build` | Build `dist/index.html` |
 | `npm run test:e2e` | Acceptance tests: opens `dist/index.html` over `file://`, offline, in Chromium |
 | `npm run test:e2e:all` | Same, in Chromium, Firefox and WebKit (what CI runs) |
 | `npm run check` | Typecheck + unit tests + build + E2E |
+| `npm run embed-image -- pic.png "alt text"` | Print a ready-to-paste embedded-picture block for a v2 test file |
+| `npm run compose-schema` | Regenerate the v2 schema from v1 + additions (after editing `scripts/compose-v2-schema.mjs`) |
 
 First E2E run: `npx playwright install chromium` (add `firefox webkit` for `test:e2e:all`).
 
@@ -46,16 +50,24 @@ First E2E run: `npx playwright install chromium` (add `firefox webkit` for `test
 Push a version tag. The Release workflow builds, tests, and attaches `index.html` to a GitHub Release:
 
 ```bash
-git tag v0.2.0
+git tag v0.3.0
 ```
 
 ```bash
-git push origin v0.2.0
+git push origin v0.3.0
 ```
 
 ## Test-file contract
 
-The app accepts files that conform to [`guided-test-file.local/v1`](docs/handoff/test-file.local.v1.schema.json). The copy compiled into the app is [src/contract/test-file.local.v1.schema.json](src/contract/test-file.local.v1.schema.json), and a unit test keeps the two identical. Two reference tests are bundled under **Use Included Examples**:
+The app accepts two contract versions. Both are compiled into the app, and the published copies in `docs/handoff/` are kept identical to the compiled ones by unit tests.
 
-- [ENGR 206](docs/handoff/engr206-local.test.example.json): voltage divider with a conversion, resistor power, and a derivative
-- [Mechanics of Materials](docs/handoff/mechanics-of-materials.local.test.example.json): double-lap bolt shear, axial bar elongation and strain, and bilinear shear unloading
+| Version | Schema | Contains |
+| --- | --- | --- |
+| `guided-test-file.local/v1` | [docs/handoff/test-file.local.v1.schema.json](docs/handoff/test-file.local.v1.schema.json) | Worked problems (frozen; v1 files keep working unchanged) |
+| `guided-test-file.local/v2` | [docs/handoff/test-file.local.v2.schema.json](docs/handoff/test-file.local.v2.schema.json) | Worked problems and/or visual rapid-check sets, embedded PNG/JPEG, callouts, trig with explicit angle units |
+
+Three reference tests are bundled under **Use Included Examples**:
+
+- [ENGR 206](docs/handoff/engr206-local.test.example.json) (v1): voltage divider with a conversion, resistor power, and a derivative
+- [Mechanics of Materials](docs/handoff/mechanics-of-materials.local.test.example.json) (v1): double-lap bolt shear, axial bar elongation and strain, and bilinear shear unloading
+- [Visual checks (placeholder)](docs/handoff/v0.3/placeholder-visual-checks.test.example.json) (v2): generic shapes exercising every rapid-check feature plus a degree-trig worked problem. Replace it with approved course content. It is generated by `scripts/make-placeholder-images.mjs` and `scripts/make-placeholder-fixture.mjs`.

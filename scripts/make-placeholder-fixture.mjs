@@ -2,7 +2,7 @@
 // content (shapes, a ramp angle) that exercises every feature the delta SOW lists. Replace it
 // with client-approved course content; see docs/TEST_FILE_GUIDE.md.
 //   node scripts/make-placeholder-images.mjs && node scripts/make-placeholder-fixture.mjs
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -378,3 +378,36 @@ const fixture = {
 
 writeFileSync(out, `${JSON.stringify(fixture, null, 2)}\n`);
 console.log(`wrote ${out}`);
+
+// ---- Derived test fixtures (E2E and unit tests) ------------------------------------------
+const write = (dir, name, data) => {
+  mkdirSync(resolve(root, dir), { recursive: true });
+  writeFileSync(resolve(root, dir, name), `${JSON.stringify(data, null, 2)}\n`);
+  console.log(`wrote ${dir}/${name}`);
+};
+const variant = (mutate) => {
+  const copy = structuredClone(fixture);
+  mutate(copy);
+  return copy;
+};
+const itemById = (t, id) => t.quickCheckSets[0].items.find((i) => i.id === id);
+
+// A v2 file with only rapid checks: no problems, formulas or conversions.
+write(
+  'tests/fixtures/v2',
+  'rapid-only.json',
+  variant((t) => {
+    t.id = 'placeholder-rapid-only';
+    t.title = 'PLACEHOLDER Rapid-only visual checks';
+    delete t.problems;
+    delete t.formulaSheet;
+    delete t.conversions;
+  }),
+);
+
+// One broken file per SOW §8 "readable local validation error" case.
+write('tests/fixtures/invalid-v2', 'bad-visual-asset.json', variant((t) => (itemById(t, 'tf-third-shape').visual.data = Buffer.from('<svg onload="alert(1)"/>').toString('base64'))));
+write('tests/fixtures/invalid-v2', 'invalid-callout.json', variant((t) => (itemById(t, 'match-shapes').visual.callouts[4].xPct = 120)));
+write('tests/fixtures/invalid-v2', 'undersized-label-bank.json', variant((t) => (itemById(t, 'match-shapes').options = ['circle', 'square', 'triangle', 'hexagon'])));
+write('tests/fixtures/invalid-v2', 'duplicate-answer-target.json', variant((t) => (itemById(t, 'match-shapes').answers.B = 'circle')));
+write('tests/fixtures/invalid-v2', 'unsupported-item-type.json', variant((t) => (itemById(t, 'identify-sphere').type = 'essay')));

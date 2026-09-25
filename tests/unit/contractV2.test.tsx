@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
@@ -78,6 +78,17 @@ describe('guided-test-file.local/v2 contract', () => {
         t.quickCheckSets = [];
       }).errors,
     ).toEqual(['/ A v2 test needs at least one worked problem ("problems") or quick-check set ("quickCheckSets")']);
+  });
+
+  it('rejects every file in tests/fixtures/invalid-v2 and loads the rapid-only fixture', () => {
+    const loader = new TestFileLoader();
+    const dir = resolve(root, 'tests/fixtures/invalid-v2');
+    const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
+    expect(files).toHaveLength(5);
+    for (const file of files) expect(loader.fromText(readRepoFile(`tests/fixtures/invalid-v2/${file}`), file).ok, file).toBe(false);
+    const rapidOnly = loader.fromText(readRepoFile('tests/fixtures/v2/rapid-only.json'), 'rapid-only.json');
+    expect(rapidOnly.ok && rapidOnly.test.problems.length).toBe(0);
+    expect(rapidOnly.ok && rapidOnly.test.quickCheckSets.length).toBe(2);
   });
 
   it('names the supported versions for an unknown apiVersion', () => {

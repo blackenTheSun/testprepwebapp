@@ -1,0 +1,1168 @@
+{
+  "apiVersion": "guided-test-file.local/v2",
+  "id": "placeholder-visual-checks-01",
+  "version": "0.3.0",
+  "title": "PLACEHOLDER Visual Rapid Checks",
+  "description": "Placeholder proof fixture for the v0.3 delta. Generic shapes only; replace with client-approved content. Exercises every visual rapid-check feature plus one degree-based trig worked problem.",
+  "formulaSheet": [
+    {
+      "id": "ramp_height",
+      "title": "Height gained along a slope",
+      "category": "Trigonometry",
+      "latex": "h = L \\sin\\theta",
+      "inputs": [
+        {
+          "id": "slopeLength",
+          "name": "Slope length",
+          "symbol": "L",
+          "unit": "m",
+          "quantityType": "length"
+        },
+        {
+          "id": "angle",
+          "name": "Slope angle",
+          "symbol": "\\theta",
+          "unit": "deg",
+          "quantityType": "angle"
+        }
+      ],
+      "output": {
+        "id": "height",
+        "name": "Height gained",
+        "symbol": "h",
+        "unit": "m",
+        "quantityType": "length"
+      },
+      "calculation": {
+        "kind": "expression/v1",
+        "ast": {
+          "op": "multiply",
+          "args": [
+            {
+              "op": "slot",
+              "slot": "slopeLength"
+            },
+            {
+              "op": "sin",
+              "angleUnit": "deg",
+              "args": [
+                {
+                  "op": "slot",
+                  "slot": "angle"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "teaching": {
+        "whatToNotice": "The distance is measured along the slope and the angle is measured from the horizontal.",
+        "whyThisOperation": "The vertical rise is the side opposite the angle, so it is the slope length times the sine of the angle.",
+        "commonMistakes": [
+          "Using cosine, which gives the horizontal run.",
+          "Evaluating sin(30) in radians instead of degrees."
+        ]
+      }
+    }
+  ],
+  "conversions": [],
+  "problems": [
+    {
+      "id": "ramp-height",
+      "title": "PLACEHOLDER Height gained along a ramp (degree trig)",
+      "prompt": {
+        "text": "A straight ramp is 4.0 m long and rises at 30 degrees to the horizontal. Find the vertical height it gains.",
+        "latex": [
+          "L = 4.0\\,\\mathrm{m}",
+          "\\theta = 30^\\circ"
+        ]
+      },
+      "givens": [
+        {
+          "id": "ramp_length",
+          "name": "Ramp length",
+          "symbol": "L",
+          "unit": "m",
+          "quantityType": "length",
+          "value": 4,
+          "latex": "L = 4.0\\,\\mathrm{m}"
+        },
+        {
+          "id": "ramp_angle",
+          "name": "Ramp angle",
+          "symbol": "\\theta",
+          "unit": "deg",
+          "quantityType": "angle",
+          "value": 30,
+          "latex": "\\theta = 30^\\circ"
+        }
+      ],
+      "target": {
+        "id": "ramp_height",
+        "name": "Height gained",
+        "symbol": "h",
+        "unit": "m",
+        "quantityType": "length"
+      },
+      "visual": {
+        "type": "diagram2d/v1",
+        "altText": "A right triangle: a sloped ramp from lower left to upper right, 4.0 m long, at 30 degrees to the horizontal ground, with the unknown vertical height h on the right.",
+        "viewBox": [
+          0,
+          0,
+          420,
+          220
+        ],
+        "primitives": [
+          {
+            "kind": "line",
+            "x1": 40,
+            "y1": 180,
+            "x2": 340,
+            "y2": 180
+          },
+          {
+            "kind": "line",
+            "x1": 40,
+            "y1": 180,
+            "x2": 340,
+            "y2": 7,
+            "label": "L = 4.0 m"
+          },
+          {
+            "kind": "line",
+            "x1": 340,
+            "y1": 180,
+            "x2": 340,
+            "y2": 7,
+            "label": "h = ?",
+            "highlight": true
+          },
+          {
+            "kind": "text",
+            "x": 92,
+            "y": 172,
+            "text": "30°"
+          }
+        ]
+      },
+      "allowedFormulaIds": [
+        "ramp_height"
+      ],
+      "allowedConversionIds": [],
+      "solutionPath": [
+        {
+          "id": "apply-sine",
+          "kind": "formula",
+          "title": "Use the sine of the slope angle",
+          "formulaId": "ramp_height",
+          "bindings": {
+            "slopeLength": "ramp_length",
+            "angle": "ramp_angle"
+          },
+          "output": {
+            "id": "ramp_height_value",
+            "name": "Height gained",
+            "symbol": "h",
+            "unit": "m",
+            "quantityType": "length",
+            "value": 2
+          },
+          "teaching": {
+            "whyNow": "The height is the only unknown side, and the slope length and its angle are both given.",
+            "whatToNotice": "The angle is given in degrees and sits between the ramp and the ground.",
+            "whyThisOperation": "Opposite side = hypotenuse × sin(angle).",
+            "inputMeaning": "L is the 4.0 m ramp (the hypotenuse); θ is 30 degrees.",
+            "resultUse": "This is the requested height.",
+            "commonMistakes": [
+              "Using cos(30°) and getting 3.46 m."
+            ]
+          }
+        },
+        {
+          "id": "state-height",
+          "kind": "finalAnswer",
+          "title": "State the height",
+          "bindings": {
+            "answer": "ramp_height_value"
+          },
+          "expectedLatex": "h = 2.0\\,\\mathrm{m}",
+          "teaching": {
+            "whyNow": "The height has been calculated.",
+            "whatToNotice": "The answer is a length in metres.",
+            "whyThisOperation": "A final answer names the quantity, value and unit.",
+            "inputMeaning": "Use the calculated height.",
+            "resultUse": "The problem is complete."
+          }
+        }
+      ]
+    }
+  ],
+  "quickCheckSets": [
+    {
+      "id": "shapes-standard",
+      "title": "PLACEHOLDER Shapes and scenes",
+      "instructions": "Look at each picture and answer. Feedback appears after each card.",
+      "feedbackMode": "immediate",
+      "presentationMode": "standard",
+      "items": [
+        {
+          "id": "identify-sphere",
+          "type": "singleChoice",
+          "prompt": "Which solid is shown?",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "A single shaded sphere floating above a set of x, y, z axes.",
+              "camera": {
+                "azimuthDeg": -40,
+                "elevationDeg": 24,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "axes",
+                  "length": 2.2
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    0.6,
+                    0.6,
+                    1.1
+                  ],
+                  "radius": 0.7
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "id": "sphere",
+              "text": "Sphere"
+            },
+            {
+              "id": "cube",
+              "text": "Cube"
+            },
+            {
+              "id": "cylinder",
+              "text": "Cylinder"
+            },
+            {
+              "id": "plane",
+              "text": "Flat plane"
+            }
+          ],
+          "correctOptionId": "sphere",
+          "explanation": "Every point on the surface is the same distance from the centre, so it is a sphere."
+        },
+        {
+          "id": "identify-highlight",
+          "type": "singleChoice",
+          "prompt": "Where is the highlighted sphere?",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "A wireframe cube with a sphere at each of its eight corners and one sphere at its centre; the centre sphere is highlighted.",
+              "camera": {
+                "azimuthDeg": -15,
+                "elevationDeg": 12,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "box",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ],
+                  "wireframe": true
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    -1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    -1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    -1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "radius": 0.32,
+                  "highlight": true
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "id": "corner",
+              "text": "At a corner of the cube"
+            },
+            {
+              "id": "center",
+              "text": "At the centre of the cube"
+            },
+            {
+              "id": "face",
+              "text": "At the centre of a face"
+            },
+            {
+              "id": "edge",
+              "text": "At the middle of an edge"
+            }
+          ],
+          "correctOptionId": "center",
+          "explanation": "The highlighted sphere sits inside the cube, equally far from all eight corners."
+        },
+        {
+          "id": "compare-panels",
+          "type": "singleChoice",
+          "prompt": "Which panel shows a rounded solid with no flat faces?",
+          "visual": {
+            "kind": "pair",
+            "altText": "Two panels side by side: A is a rectangular box; B is a photo of a ball.",
+            "panels": [
+              {
+                "kind": "typedScene",
+                "scene": {
+                  "type": "scene3d/v1",
+                  "altText": "A solid rectangular box.",
+                  "camera": {
+                    "azimuthDeg": -40,
+                    "elevationDeg": 24,
+                    "projection": "orthographic"
+                  },
+                  "objects": [
+                    {
+                      "kind": "box",
+                      "center": [
+                        0,
+                        0,
+                        0
+                      ],
+                      "size": [
+                        2,
+                        1.2,
+                        1
+                      ]
+                    }
+                  ]
+                },
+                "caption": "A"
+              },
+              {
+                "kind": "image",
+                "mediaType": "image/jpeg",
+                "altText": "Photo-style picture of a shaded blue ball resting on a beige surface, lit from the upper left.",
+                "width": 200,
+                "height": 200,
+                "data": "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",
+                "caption": "B"
+              }
+            ]
+          },
+          "options": [
+            {
+              "id": "panel-a",
+              "text": "Panel A"
+            },
+            {
+              "id": "panel-b",
+              "text": "Panel B"
+            }
+          ],
+          "correctOptionId": "panel-b",
+          "explanation": "Panel B is a ball: its surface curves everywhere. Panel A is a box with six flat faces."
+        },
+        {
+          "id": "tf-third-shape",
+          "type": "trueFalse",
+          "visual": {
+            "kind": "image",
+            "mediaType": "image/png",
+            "altText": "Five filled shapes in a row on white, left to right: a blue circle, an orange square, a green triangle, a purple hexagon and a red five-pointed star.",
+            "width": 400,
+            "height": 160,
+            "data": "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"
+          },
+          "statement": "The third shape from the left is a square.",
+          "answer": false,
+          "explanation": "The third shape is a triangle. The square is the second shape."
+        },
+        {
+          "id": "tf-arrow",
+          "type": "trueFalse",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "diagram2d/v1",
+              "altText": "A horizontal highlighted arrow pointing to the right, above a thin baseline.",
+              "viewBox": [
+                0,
+                0,
+                300,
+                120
+              ],
+              "primitives": [
+                {
+                  "kind": "line",
+                  "x1": 20,
+                  "y1": 90,
+                  "x2": 280,
+                  "y2": 90
+                },
+                {
+                  "kind": "arrow",
+                  "x1": 60,
+                  "y1": 55,
+                  "x2": 240,
+                  "y2": 55,
+                  "highlight": true
+                }
+              ]
+            }
+          },
+          "statement": "The highlighted arrow points to the right.",
+          "answer": true,
+          "explanation": "The arrowhead is at the right-hand end."
+        },
+        {
+          "id": "tf-cylinder",
+          "type": "trueFalse",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "An upright solid cylinder.",
+              "camera": {
+                "azimuthDeg": -40,
+                "elevationDeg": 24,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "cylinder",
+                  "from": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "to": [
+                    0,
+                    0,
+                    2
+                  ],
+                  "radius": 0.8
+                }
+              ]
+            }
+          },
+          "statement": "This solid has exactly one flat face.",
+          "answer": false,
+          "explanation": "A cylinder has two flat circular faces, one at each end, plus one curved side."
+        },
+        {
+          "id": "match-shapes",
+          "type": "matching",
+          "prompt": "Name each marked shape.",
+          "visual": {
+            "kind": "image",
+            "mediaType": "image/png",
+            "altText": "Five filled shapes in a row on white, left to right: a blue circle, an orange square, a green triangle, a purple hexagon and a red five-pointed star.",
+            "width": 400,
+            "height": 160,
+            "data": "iVBORw0KGgoAAAANSUhEUgAAAZAAAACgCAIAAACt0K2CAAAObElEQVR4nOzdf2yU9R0H8E9/HLSlvQJSoB3QQouMQusPwBlFYIxAAiRzfwxdglsUyeZ0U4wmLtEQNp1m4BxG3FRYWewyB9PpFAwKBSEBE34pRQQKFGhtoS39cbSl7bXXfcyTNYz22nvuvt/n+X6evl+5NNe7577fTwTffJ/nvnefxO7ubgIAkCCeAACEQGABgBgILAAQA4EFAGIgsABADAQWAIiBwAIAMRBYACAGAgsAxEBgAYAYCCwAEAOBBQBiILAAQAwEFgCIgcACADEQWAAgBgILAMRAYAGAGAgsABADgQUAYiCwAEAMBBYAiIHAAgAxEFgAIAYCCwDEQGABgBgILAAQA4EFAGIgsABADAQWAIiBwAIAMRBYACAGAgsAxEBgAYAYCCwAEAOBBQBiILAAQAwEFgCIgcACADEQWAAgBgILAMRAYAGAGAgsABADgQUAYiCwAEAMBBYAiIHAAgAxEFgAIAYCCwDEQGABgBgILAAQI5EAVDtYfYJ/zsrMJ/Ci1rNn+WdKbi45DissUG/DkS18I/Couk8+4Ru5wYkVVqC1q6S0qayqrS4QrOVbE//s5Mcz/IkZ6b4Mv2+U3zc5K2l+Qbo/JYEMc2FtNpkq++kLZJ6SCwePXj5p3ZmfPYvAc+q2b+efEx55hBynMbCq6oO7jjXuKW06eq4l1N3HARV1HXzr+fW371Tcnps6b7p/fuHwrJE+ApleP7K15w4Cy3uaS0s7amutO6kFBeQsLYF19lLb+g+r934VsPUqDrVDZ5r5tu79qjnT/L9empmXmUQgCq+qyhouWvf5DhZZ3lO3Y0fPHfGBVd0QfG1b9fbDDd3dFAsOu30nAotnjHh08diskUMIJOgKhXqWVxb+de74GQnxZl0qLTvc8LfVJ0idn63JnzxjBA0C3V1ddbt2Wff5TvaqVXEJjl7GUfk36d0DV+79/dfbDsWaVhYehIf60Ysn//15PYEEH53d27O8svCv/CCZJNTVvX1jOSnFA/KwNAgEDh3qbGiw7vMd/pWcpSawWtu7Vm0q/90/K9uDiv/YeMA171Q8VXS+pa2LwGC8vHrji/d6P84P8lNkjEM7LtdWXCOleEAelgaBG94cdP69QgWBdaKiddkfTu8utXfFypadXzb9ZN3psirFf89AoXdP7/rmak3vx/lBforM0NbaubNYy1urPCwPTp4W6uy8UlJy/SP8Kz9IDoo1sN7eU/vTV8oqr3SQZhfrOpa/UobTQzO1d3b8+ci/wj3LT/EBZIDPtlS2BrT8D8bD8uDkaY379oWu/d+igX/lB8lBMQXWl+Ut6/9T1enUep9PD1/YUnH0XDOBYbae2lnf1hTuWX6KDyC3Nda07X+/irThwXkK8q4+TwAdPiuMPrAuN3Y8vrG809mrEzzdk5vOX2ow4p9rsFztaN305Qf9H8MH8GHkqh1FF7o6NV4a58F5CvKortbWhr19vH/CD/JT5JQoA6u5reuxN8obW1y4EN7Q0sVB2dZh0HXcQa74q239LK8sfAAfRu6pOHm1dF8dacZT8ETkRfW7d3d39fH/Oz/IT5FTogysTZ/WlFW7tvo99U3bG4PjTRnz8bqp+Pj2SI7kw1xcZG176xw5wrGJHNazX9TWU8pFE1hV9R3Fe2rJVX//rJbLIHAbr5uagxG9e8uHubXIOra3rvKUQ5c+eSKejrylMxBoCr/lip/iA8gR0QTW+g+rg25vk+vo7OYyCFx15VpjhMsrCx/MLyFndQZDO4rOk4N4Op6UPOTbNVQ/m+lCIccWWbYD69j5lh1Hnf471ycu40w1dma5iS+lR7i8svDBA16eV+6zLZVNte3kIJ7OY1scBswjcwPLqHXNyx9gkeUaXitFsVmBX+LkIquxpm3vVheygyf1zBaH9pqa5uPH+z+GD+DDSD97gVV+uf3w2RYyxoGTV7kkAje8fmRrR1eQbOKX3PABaa10b2UIx0tbHOo+/ljhYTGyF1i7S5vIMAaWNBhUBi6/d7qEosIv5JeTfs5sZQjHM1scIjzdc+as0N7Xy5SYlw5c0kMLRhM46y9fvBuK9ks5+IX88ufn/JI0c32HARfwi5dvIbfVbtt27qWXuoO2l8O2XDt37vM776SoxPl8k555JmPJkgGPtLHCqm0KHr/g8mbl3rikmia9fxJwg9P1F7adjekTZPxyHoR0cnIrQziGbHHgICgoKhqamUlG4sK4vEjSimwF1p7jDm21sOvAKW/uLTbWhiNbQ7F95xm/fIPOK1nOb2UIx5AtDil5eYXFxSNmzybDcElcGJcX4fE2AuvUN4buISg9b9y6z8N4ZbTnooKvbeNB9C2y9r9f5fBWhnC4DK2fuI5cwrBhU9aty37iCYe/IzQcLoOL4ZK4sMhfZSOw6gKGnnkZW5gnKVwZaVpktTQFjdoGxcW0GHPVIvP++6e9+aYvI4NcxQVwGVwM2WQnsK4a+v1kxhbmPUcufa1keWXhoXhAUm3n2xfbrxn0/bRcDJdExkidNu2W4mL/LNeag/DUXACXQfbZCKwrpi5krpr0t9PbXlPdHlX5gDUXWw99cokMwyVxYWSMxPT0/FdfHbdiBcXFkZPi4nhSnpoLoKjYOiU0dCFjbJJ6zMHqE4dVL4h4QKuvvSrbN5Z3m/cxPi5JeeeLWHF2rFw5df36BL+fHMET8XQ8aSwpaSOwhvqcDWMwjKbu82hq76L0O+7gs7Nh+fmkGU/BE/F0FBsbgXWT39BuzMYW5iU9DeiV42F5cFJk8cMT48zqgvgtLokLIyMNGT16+ltvjb3vPtKGB+cpeCKKmY0/21FpGvvax8LYwrxE6wcAFQ4+ekLKzIVjyTBcEhdGpopLSMhZtermtWvjUxQXyQPysDnq+q3aCSxTFzLGFuYZ1zeg18Fqak+KLHhgwtBkI7YaWbgYLomMN/KeewqLi5Nzc0kRHooH5GFJHTunhKYuZIwtzBt6N6DXgadQ1W91WLpv7rJxZAwuhksiCZKysgqKim5auJBixoPwUDwgKWUjsApzbGxIdZKxhXlD7wb0Oqhtan/XvVnpGUPJAFwGF0NyxA8ZMp7fyIsZD8JDkWo2AuvuqWlkpNn5hhbmAeEa0OugsKl9oi9+0YM5ZAAug4shURoPHKCYKRmkNxv/KdOSE6ZnG3fhkEtKTTLogoXHhGtAr4PapvaFc0aNm5JKruICuAySxiOBxeYXRLk/VR8DS/KM/hvQ66C2qf2SlZPIVa4XEIVQMNh0UMEbIDxISMM3cNkLrO+blw4GluQZ/Teg10FtU/vx300ruMe1BQ5PzQWQNIGDB7s7FXymhQcJHFT2zm8Pe4E1cczQGbkGXeHmYrgkAg0iaUCvg9qm9osezE5IdOETGjwpT00CKTyV03FWaPty4GNLDNqV96ulhn6JogdE0oBeB7VN7YePTprzYxe2OPCkPDUJ5LXAum1S6rzpDn1asn9cxq0TsaFBi8gb0Ougtqn93GXjHN7iwNMZtREscm2VlXwjRdSOZonmDddHF4+Nd/tz0FyAUWs9j4m8Ab0OapvaO7/FQeJWBkuEa6LcZ5/Nfe65ON/Au2Eb9+8npaL5zzo5K3nlwjHkKi4gLzOZQAO7Deh1UNvU3sktDkK3MlgGzJehmZmFxcUZS5dG2NhC+VlhlP8O/HzRmDnTXDsxnJ2fxgUQ6GG3Ab0OypvaO7bDQOJWBsuAGxpuaBgRSWML5Zsbogys+Pi4F5ZPyBzhwiekxg73vfhAdrzrJ6UeFV0Deh3UNrV3ZouD0K0Mln42NIRrGDFgYwvlmxuiP9NOS054+aGcJGe/1Y+ne2VFTppJn8X3mOga0OugvKm97i0OcrcyWMKdvg3YMKL/xhZqzwpjujSYPz7lN86+Z8zTTR1v7vcKSRdLA3od1Da1Hz46SevnkHlwoVsZLH0mS4QNI/ppbGFQYLEf3jFy8+N56Snalzw8BU/E0xFoE0sDeh2spvakztxl41L8Wr6MiIcVupXB0scWBJsNI8I1tlC7uUHBm6+3Thz2j6duzhmtcavLlO8k8RTYdaVV7A3odVDb1D4pJXHBci1nbTwsD05i3fD+YJQNI8I0tlC4uUHNbpGskUOKn5ysaUMpD7v58ck8BYFOsTeg10F5U/uZi8ZkjFe8IYYHnCn8bevrT9xibBjRu7GFwrNCZdvbUpMS/vTwRL5NV/fd1dMmJP9xRQ6PmTxE5DY8QVQ1oNdBbVP7+IQ45f0geEAelsS6fkODkoYRNzS2ULi5QfEilldDfDt0pmXjp5c+P9VM0frezakPLxwzK8/l7zMaPDbo/xLkWHB56xc8RYpMnjHi+Y/uJvgfa0NDfEpK3po1qr6C3Wps4Z8588zq1aHWVp5i+F13Ucy0nHXPzBs2My+3qj5Ycqxxz/HAkbPNoQhONeLj6LZJw+YVpP+gcHjWSPSVcI7aBvQ6WE3tbx87lUADPmVLzs2dsnat8q9gtxpbnHr6aZ7C3MCycOgsn5fBt0BrV0lpU1lVW10gWMu3Jv757f60DH9iRrovw+8b5fdNzkqaX5DuT8EGKxe8JqGVKRf518WrCTRISEsrLCqKG6LlMjGHIA9euXkzqRDXbd51VgCAPuFiNgCIgcACADEQWAAgBgILAMRAYAGAGAgsABADgQUAYiCwAEAMBBYAiIHAAgAxEFgAIAYCCwDEQGABgBgILAAQA4EFAGIgsABADAQWAIiBwAIAMRBYACAGAgsAxEBgAYAYCCwAEAOBBQBiILAAQAwEFgCIgcACADEQWAAgBgILAMRAYAGAGAgsABADgQUAYiCwAEAMBBYAiIHAAgAxEFgAIAYCCwDEQGABgBgILAAQA4EFAGIgsABADAQWAIiBwAIAMRBYACAGAgsAxEBgAYAYCCwAEAOBBQBiILAAQAwEFgCIgcACADEQWAAgBgILAMRAYAGAGP8FAAD//4zcOEwAAAAGSURBVAMA38EbTI5k+PcAAAAASUVORK5CYII=",
+            "callouts": [
+              {
+                "id": "A",
+                "xPct": 10,
+                "yPct": 16
+              },
+              {
+                "id": "B",
+                "xPct": 30.5,
+                "yPct": 16
+              },
+              {
+                "id": "C",
+                "xPct": 50,
+                "yPct": 16
+              },
+              {
+                "id": "D",
+                "xPct": 66.5,
+                "yPct": 16
+              },
+              {
+                "id": "E",
+                "xPct": 120,
+                "yPct": 16
+              }
+            ]
+          },
+          "prompts": [
+            {
+              "id": "A",
+              "text": "Shape A"
+            },
+            {
+              "id": "B",
+              "text": "Shape B"
+            },
+            {
+              "id": "C",
+              "text": "Shape C"
+            },
+            {
+              "id": "D",
+              "text": "Shape D"
+            },
+            {
+              "id": "E",
+              "text": "Shape E"
+            }
+          ],
+          "options": [
+            "circle",
+            "square",
+            "triangle",
+            "hexagon",
+            "star",
+            "pentagon",
+            "ellipse",
+            "rhombus"
+          ],
+          "answers": {
+            "A": "circle",
+            "B": "square",
+            "C": "triangle",
+            "D": "hexagon",
+            "E": "star"
+          },
+          "explanation": "Pentagon, ellipse and rhombus are decoys: none of those shapes appears."
+        },
+        {
+          "id": "recall-cube",
+          "type": "recall",
+          "responseMode": "sketch",
+          "prompt": "On paper, sketch a cube with a sphere at every corner and one sphere at the centre.",
+          "referenceVisual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "A wireframe cube with a sphere at each of its eight corners and one sphere at its centre.",
+              "camera": {
+                "azimuthDeg": -15,
+                "elevationDeg": 12,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "box",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ],
+                  "wireframe": true
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    -1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    -1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    -1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "radius": 0.32,
+                  "highlight": false
+                }
+              ]
+            }
+          },
+          "keyPoints": [
+            "Eight corner spheres, one per corner.",
+            "One sphere exactly in the middle.",
+            "No spheres on the faces or edges."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shapes-rapid",
+      "title": "PLACEHOLDER Rapid shapes round",
+      "instructions": "Eight picture cards, a few seconds each. Answers are shown at the end.",
+      "feedbackMode": "end",
+      "presentationMode": "rapidVisual",
+      "items": [
+        {
+          "id": "rapid-1",
+          "type": "singleChoice",
+          "displaySeconds": 8,
+          "prompt": "Name the solid.",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "A solid rectangular box.",
+              "camera": {
+                "azimuthDeg": -40,
+                "elevationDeg": 24,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "box",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "size": [
+                    2,
+                    1.2,
+                    1
+                  ]
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "id": "box",
+              "text": "Box"
+            },
+            {
+              "id": "sphere",
+              "text": "Sphere"
+            },
+            {
+              "id": "cylinder",
+              "text": "Cylinder"
+            }
+          ],
+          "correctOptionId": "box",
+          "explanation": "Six flat rectangular faces: a box."
+        },
+        {
+          "id": "rapid-2",
+          "type": "trueFalse",
+          "displaySeconds": 6,
+          "visual": {
+            "kind": "image",
+            "mediaType": "image/jpeg",
+            "altText": "Photo-style picture of a shaded blue ball resting on a beige surface, lit from the upper left.",
+            "width": 200,
+            "height": 200,
+            "data": "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"
+          },
+          "statement": "This picture shows a ball.",
+          "answer": true,
+          "explanation": "It is a shaded ball resting on a surface."
+        },
+        {
+          "id": "rapid-3",
+          "type": "singleChoice",
+          "displaySeconds": 8,
+          "prompt": "How many of these shapes have only straight edges?",
+          "visual": {
+            "kind": "image",
+            "mediaType": "image/png",
+            "altText": "Five filled shapes in a row on white, left to right: a blue circle, an orange square, a green triangle, a purple hexagon and a red five-pointed star.",
+            "width": 400,
+            "height": 160,
+            "data": "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"
+          },
+          "options": [
+            {
+              "id": "two",
+              "text": "2"
+            },
+            {
+              "id": "three",
+              "text": "3"
+            },
+            {
+              "id": "four",
+              "text": "4"
+            },
+            {
+              "id": "five",
+              "text": "5"
+            }
+          ],
+          "correctOptionId": "four",
+          "explanation": "Square, triangle, hexagon and star have straight edges; only the circle is curved."
+        },
+        {
+          "id": "rapid-4",
+          "type": "singleChoice",
+          "displaySeconds": 8,
+          "prompt": "Name the solid.",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "An upright solid cylinder.",
+              "camera": {
+                "azimuthDeg": -40,
+                "elevationDeg": 24,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "cylinder",
+                  "from": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "to": [
+                    0,
+                    0,
+                    2
+                  ],
+                  "radius": 0.8
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "id": "cylinder",
+              "text": "Cylinder"
+            },
+            {
+              "id": "cone",
+              "text": "Cone"
+            },
+            {
+              "id": "box",
+              "text": "Box"
+            }
+          ],
+          "correctOptionId": "cylinder",
+          "explanation": "Two circular flat ends joined by a curved side: a cylinder."
+        },
+        {
+          "id": "rapid-5",
+          "type": "trueFalse",
+          "displaySeconds": 6,
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "diagram2d/v1",
+              "altText": "An arrow pointing straight up.",
+              "viewBox": [
+                0,
+                0,
+                200,
+                200
+              ],
+              "primitives": [
+                {
+                  "kind": "arrow",
+                  "x1": 100,
+                  "y1": 180,
+                  "x2": 100,
+                  "y2": 30
+                }
+              ]
+            }
+          },
+          "statement": "The arrow points down.",
+          "answer": false,
+          "explanation": "The arrowhead is at the top, so it points up."
+        },
+        {
+          "id": "rapid-6",
+          "type": "singleChoice",
+          "displaySeconds": 8,
+          "prompt": "How many spheres are at the corners of this cube?",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "A wireframe cube with a sphere at each of its eight corners and one sphere at its centre.",
+              "camera": {
+                "azimuthDeg": -15,
+                "elevationDeg": 12,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "box",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ],
+                  "wireframe": true
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    -1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    -1,
+                    1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    -1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    -1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    1,
+                    -1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "radius": 0.28
+                },
+                {
+                  "kind": "sphere",
+                  "center": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "radius": 0.32,
+                  "highlight": false
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "id": "four",
+              "text": "4"
+            },
+            {
+              "id": "six",
+              "text": "6"
+            },
+            {
+              "id": "eight",
+              "text": "8"
+            },
+            {
+              "id": "nine",
+              "text": "9"
+            }
+          ],
+          "correctOptionId": "eight",
+          "explanation": "A cube has 8 corners. (The ninth sphere is at the centre, not a corner.)"
+        },
+        {
+          "id": "rapid-7",
+          "type": "trueFalse",
+          "displaySeconds": 6,
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "scene3d/v1",
+              "altText": "A single flat square plane, drawn at an angle.",
+              "camera": {
+                "azimuthDeg": -40,
+                "elevationDeg": 24,
+                "projection": "orthographic"
+              },
+              "objects": [
+                {
+                  "kind": "plane",
+                  "origin": [
+                    -1,
+                    -1,
+                    0
+                  ],
+                  "u": [
+                    2,
+                    0,
+                    0
+                  ],
+                  "v": [
+                    0,
+                    2,
+                    0
+                  ]
+                }
+              ]
+            }
+          },
+          "statement": "This object has thickness.",
+          "answer": false,
+          "explanation": "It is a flat plane: it has length and width but no thickness."
+        },
+        {
+          "id": "rapid-8",
+          "type": "singleChoice",
+          "displaySeconds": 10,
+          "prompt": "Which shape is highlighted?",
+          "visual": {
+            "kind": "typedScene",
+            "scene": {
+              "type": "diagram2d/v1",
+              "altText": "A circle, a rectangle, and a highlighted point, side by side.",
+              "viewBox": [
+                0,
+                0,
+                360,
+                140
+              ],
+              "primitives": [
+                {
+                  "kind": "circle",
+                  "x": 60,
+                  "y": 70,
+                  "radius": 36
+                },
+                {
+                  "kind": "rect",
+                  "x": 140,
+                  "y": 34,
+                  "width": 90,
+                  "height": 72
+                },
+                {
+                  "kind": "point",
+                  "x": 300,
+                  "y": 70,
+                  "label": "P",
+                  "highlight": true
+                }
+              ]
+            }
+          },
+          "options": [
+            {
+              "id": "circle",
+              "text": "The circle"
+            },
+            {
+              "id": "rect",
+              "text": "The rectangle"
+            },
+            {
+              "id": "point",
+              "text": "The point"
+            }
+          ],
+          "correctOptionId": "point",
+          "explanation": "The point P is drawn in the highlight colour."
+        }
+      ]
+    }
+  ]
+}
