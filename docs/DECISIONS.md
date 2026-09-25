@@ -95,3 +95,11 @@ Decisions made while implementing the v0.2 local-offline SOW and the v0.3 visual
 | D57 | Worked problems and quick checks are separate screens. Starting a check pauses any running problem timer, and opening a problem closes the check. | Keeps each timer honest. |
 | D58 | The placeholder fixture is bundled as a third included example, **"Visual checks (placeholder)"**. | Amy and Brent can try the feature with no file. |
 | D59 | `displaySeconds` in a `standard` set is ignored at runtime and flagged as a warning at load. | SOW: per-card timing belongs to `rapidVisual` sets. |
+
+## v0.3 visual rapid checks: R2 (acceptance and QA)
+
+| # | Decision | Why |
+| --- | --- | --- |
+| D60 | The rapid-only fixture and the five invalid v2 fixtures are **generated from the placeholder** by `scripts/make-placeholder-fixture.mjs`, each changing one thing. | They stay valid-except-one-thing as the placeholder evolves, so each E2E error case tests exactly one rule. |
+| D61 | Delta acceptance lives in its own spec (`rapidChecks.spec.ts`), one test per SOW v0.3 §8 row. The v0.2 spec is untouched and serves as the legacy regression. | Maps one-to-one to the SOW for review, and proves v1 behaviour didn't change. |
+| D62 | Package version **0.3.0**; Node ≥ 22.6 for development (the `embed-image` script). The delivered `index.html` is unaffected. | Tag `v0.3.0` to publish a release with `index.html` attached (D38). |

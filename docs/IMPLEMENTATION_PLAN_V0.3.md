@@ -109,6 +109,8 @@ Each milestone ends with a report in `docs/milestones/` (R0.md, R1.md, R2.md), n
 
 ## 7. Delta acceptance traceability
 
+**Status: all eight checks pass** in Chromium, Firefox and WebKit (CI run 36090758698). Evidence per milestone: [R0](milestones/R0.md), [R1](milestones/R1.md), [R2](milestones/R2.md).
+
 | SOW §8 check | Covered by |
 | --- | --- |
 | Legacy compatibility | Frozen `ContractV1`; the existing 41 unit + 7 E2E tests, unchanged |
