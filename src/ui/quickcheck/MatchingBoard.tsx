@@ -16,6 +16,10 @@ const HOST_PATH = `M 6 0 H ${HOST_W} V ${PIECE_H / 2 - KNOB_R} A ${KNOB_R} ${KNO
 const PIECE_OFFSET = HOST_W - KNOB_X;
 const DRAG_THRESHOLD = 5;
 
+/** Identifies the element a drag started from. */
+const sourceKey = (s: { term: string; from?: string }) => (s.from === undefined ? `piece:${s.term}` : `slot:${s.from}`);
+const CLICK_AFTER_DRAG_MS = 300;
+
 type Source = { term: string; from?: string };
 
 interface DragState extends Source {
@@ -61,7 +65,8 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
   const [held, setHeld] = useState<Source>();
   const [drag, setDrag] = useState<DragState>();
   const [message, setMessage] = useState('');
-  const suppressClick = useRef(false);
+  /** The element a finished drag started from, and when it ended (see `partOfDrag`). */
+  const lastDrag = useRef({ key: '', at: -Infinity });
   const dragRef = useRef<DragState | undefined>(undefined);
   dragRef.current = drag;
 
@@ -86,18 +91,20 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
       const d = dragRef.current;
       if (!d || e.pointerId !== d.pointerId) return;
       const moving = d.moving || Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > DRAG_THRESHOLD;
-      setDrag({ ...d, x: e.clientX, y: e.clientY, moving });
+      const next = { ...d, x: e.clientX, y: e.clientY, moving };
+      // Update the ref now: pointerup can arrive before React re-renders (WebKit, fast flicks).
+      dragRef.current = next;
+      setDrag(next);
     };
     const up = (e: PointerEvent) => {
       const d = dragRef.current;
       if (!d || e.pointerId !== d.pointerId) return;
+      dragRef.current = undefined;
       setDrag(undefined);
-      if (!d.moving) return; // a tap: handled by onClick
-      // Swallow the click that may follow this pointerup, then re-arm on the next tick.
-      suppressClick.current = true;
-      window.setTimeout(() => {
-        suppressClick.current = false;
-      }, 0);
+      // Judge by where the pointer ended, not only by moves React has rendered.
+      const moved = d.moving || Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > DRAG_THRESHOLD;
+      if (!moved) return; // a tap: handled by onClick
+      lastDrag.current = { key: sourceKey(d), at: performance.now() };
       const target = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-drop]');
       const drop = target?.dataset.drop;
       if (drop?.startsWith('slot:')) placeOn(d, drop.slice(5));
@@ -131,12 +138,16 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
     });
   };
 
+  /**
+   * When a drag starts and ends on the same element the browser also fires a click there. Ignore
+   * that one click: a pointer click on the drag's own source right after it ended. Keyboard clicks
+   * (detail 0) and taps on other pieces or slots always count.
+   */
+  const partOfDrag = (e: { detail: number }, key: string) =>
+    e.detail !== 0 && lastDrag.current.key === key && performance.now() - lastDrag.current.at < CLICK_AFTER_DRAG_MS;
+
   /** Click / Enter on a piece: pick it up (or put it down if it is already held). */
   const clickPiece = (source: Source) => {
-    if (suppressClick.current) {
-      suppressClick.current = false;
-      return;
-    }
     if (locked) return;
     if (held && held.term === source.term && held.from === source.from) {
       setHeld(undefined);
@@ -149,10 +160,6 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
 
   /** Click / Enter on a slot: place what is held, or pick up the piece already there. */
   const clickSlot = (id: string) => {
-    if (suppressClick.current) {
-      suppressClick.current = false;
-      return;
-    }
     if (locked) return;
     if (held) placeOn(held, id);
     else if (selections[id]) clickPiece({ term: selections[id], from: id });
@@ -191,7 +198,7 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
                 style={{ width: PIECE_OFFSET + PIECE_W, height: PIECE_H }}
                 aria-label={`Slot ${prompt.id}, ${promptText(prompt.id)}: ${term ? `holds ${term}` : 'empty'}${ok === undefined ? '' : ok ? ', correct' : ', incorrect'}`}
                 aria-disabled={locked}
-                onClick={() => clickSlot(prompt.id)}
+                onClick={(e) => !partOfDrag(e, `slot:${prompt.id}`) && clickSlot(prompt.id)}
                 onKeyDown={(e) => {
                   if ((e.key === 'Delete' || e.key === 'Backspace') && term && !locked) {
                     e.preventDefault();
@@ -238,7 +245,7 @@ export function MatchingBoard({ item, selections, onChange, locked, result }: Bo
                 aria-label={`Label piece: ${term}`}
                 aria-pressed={isHeld}
                 disabled={locked}
-                onClick={() => clickPiece({ term })}
+                onClick={(e) => !partOfDrag(e, `piece:${term}`) && clickPiece({ term })}
                 onPointerDown={(e) => startDrag(e, { term })}
               >
                 <PieceShape term={term} state={[isHeld ? 'held' : '', dragging && dragging.from === undefined && dragging.term === term && !item.allowReuse ? 'lifted' : ''].filter(Boolean).join(' ')} />

@@ -159,6 +159,14 @@ test('Diagram label match: 5 markers, drag-and-drop puzzle pieces from 8 terms, 
   await slot(page, 'D').focus();
   await page.keyboard.press('Enter');
   await dragPiece(page, 'star', 'E');
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeEnabled();
+
+  // Dragging a placed piece back to the bank empties its socket; then put it back.
+  await slot(page, 'C').dragTo(card(page).locator('.piece-bank'), { sourcePosition: { x: 120, y: 22 } });
+  await expect(slot(page, 'C')).toHaveAttribute('aria-label', /empty/);
+  await expect(page.locator('.piece-bank [data-piece="triangle"]')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeDisabled();
+  await dragPiece(page, 'triangle', 'C');
   await submit(page);
 
   await expect(card(page).locator('.feedback-status')).toHaveText('Partly correct: 4 of 5');
