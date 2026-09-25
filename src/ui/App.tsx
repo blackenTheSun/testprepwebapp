@@ -6,6 +6,7 @@ import type { IncludedExample } from '../examples';
 import { Home } from './Home';
 import { useObservable } from './hooks';
 import { ProblemView } from './ProblemView';
+import { QuickCheckView } from './quickcheck/QuickCheckView';
 
 const loader = new TestFileLoader();
 
@@ -44,6 +45,10 @@ export function App() {
 
   const loadExample = useCallback((example: IncludedExample) => accept(loader.fromData(example.data, example.fileName)), [accept]);
 
+  const run = session?.activeRun;
+  if (session && run) {
+    return <QuickCheckView key={`${run.set.id}:${run.round}`} session={session} run={run} />;
+  }
   const attempt = session?.activeAttempt;
   if (session && attempt) {
     return <ProblemView key={attempt.uid} session={session} attempt={attempt} />;

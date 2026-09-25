@@ -28,9 +28,9 @@ const ballImage = {
   data: b64('shaded-ball.jpg'),
 };
 const camera = { azimuthDeg: -40, elevationDeg: 24, projection: 'orthographic' };
-const scene = (altText, objects, extra = {}) => ({
+const scene = (altText, objects, extra = {}, cam = camera) => ({
   kind: 'typedScene',
-  scene: { type: 'scene3d/v1', altText, camera, objects },
+  scene: { type: 'scene3d/v1', altText, camera: cam, objects },
   ...extra,
 });
 const diagram = (altText, viewBox, primitives) => ({
@@ -43,6 +43,9 @@ const cubeWithCenter = (highlightCenter) =>
   scene(
     `A wireframe cube with a sphere at each of its eight corners and one sphere at its centre${highlightCenter ? '; the centre sphere is highlighted' : ''}.`,
     [{ kind: 'box', center: [0, 0, 0], size: [2, 2, 2], wireframe: true }, ...corners, { kind: 'sphere', center: [0, 0, 0], radius: 0.32, highlight: highlightCenter }],
+    {},
+    // A shallower angle keeps the centre sphere clear of the corner spheres in front of it.
+    { azimuthDeg: -15, elevationDeg: 12, projection: 'orthographic' },
   );
 
 const fixture = {

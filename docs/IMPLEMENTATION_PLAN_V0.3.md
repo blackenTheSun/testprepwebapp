@@ -102,7 +102,7 @@ Behaviour details:
 | Milestone | Scope | Gate | SOW estimate |
 | --- | --- | --- | --- |
 | **R0: v2 contract and validation** | Contract registry, v2 schema (published copy + compiled), trig nodes, sphere/wireframe/highlight, all v2 rules, asset guardrails, `embed-image` script, guide updates, engine fixtures | v1 suite still green; every SOW §3 rejection has a failing-fixture test; trig evaluates in deg and rad | 10–16 h |
-| **R1: quick-check runner** | Item classes and scoring, `QuickCheckRun`, `CardTimer`, feedback modes, summary, retry; home section; quick-check screen; recall flow | Unit tests for scoring, one-to-one matching, expiry → unanswered, and retry composition | 22–34 h |
+| **R1: quick-check runner** | Item classes and scoring, `QuickCheckRun`, `CardTimer`, feedback modes, summary, retry; home section; quick-check screen; recall flow; picture/pair/callout rendering (moved from R2, D52) | Unit tests for scoring, one-to-one matching, expiry → unanswered, and retry composition | 22–34 h |
 | **R2: visuals, proof fixture, QA** | Image, pair and callout overlay rendering; reveal overlay; proof fixture wired in; E2E for the 8 delta ACs offline in 3 engines; docs, milestone reports, decisions | All delta ACs green in CI; v1 E2E unchanged and green | 16–24 h |
 
 Each milestone ends with a report in `docs/milestones/` (R0.md, R1.md, R2.md), new entries in DECISIONS.md, and commits pushed to `main`.

@@ -268,8 +268,8 @@
               "type": "scene3d/v1",
               "altText": "A wireframe cube with a sphere at each of its eight corners and one sphere at its centre; the centre sphere is highlighted.",
               "camera": {
-                "azimuthDeg": -40,
-                "elevationDeg": 24,
+                "azimuthDeg": -15,
+                "elevationDeg": 12,
                 "projection": "orthographic"
               },
               "objects": [
@@ -631,8 +631,8 @@
               "type": "scene3d/v1",
               "altText": "A wireframe cube with a sphere at each of its eight corners and one sphere at its centre.",
               "camera": {
-                "azimuthDeg": -40,
-                "elevationDeg": 24,
+                "azimuthDeg": -15,
+                "elevationDeg": 12,
                 "projection": "orthographic"
               },
               "objects": [
@@ -940,8 +940,8 @@
               "type": "scene3d/v1",
               "altText": "A wireframe cube with a sphere at each of its eight corners and one sphere at its centre.",
               "camera": {
-                "azimuthDeg": -40,
-                "elevationDeg": 24,
+                "azimuthDeg": -15,
+                "elevationDeg": 12,
                 "projection": "orthographic"
               },
               "objects": [

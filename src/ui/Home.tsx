@@ -129,6 +129,52 @@ function ProblemList({ session }: { session: Session }) {
         </details>
       )}
 
+      {test.quickCheckSets.length > 0 && <QuickCheckList session={session} />}
+
+      {test.problems.length > 0 && <WorkedProblems session={session} />}
+    </section>
+  );
+}
+
+/** v2: one card per authored quick-check set. */
+function QuickCheckList({ session }: { session: Session }) {
+  return (
+    <section className="quickcheck-list" aria-labelledby="rapid-checks-title">
+      <h3 id="rapid-checks-title">Visual Rapid Checks</h3>
+      <ul className="set-cards">
+        {session.test.quickCheckSets.map((set) => {
+          const last = session.lastScore(set.id);
+          const timed = set.items.some((i) => i.displaySeconds !== undefined);
+          return (
+            <li key={set.id} className="set-card">
+              <div className="set-card-body">
+                <span className="problem-title">{set.title}</span>
+                <span className="muted small">
+                  {set.items.length} card{set.items.length === 1 ? '' : 's'} · {set.presentationMode === 'rapidVisual' ? `rapid round${timed ? ', timed' : ''}` : 'standard'} ·{' '}
+                  {set.feedbackMode === 'immediate' ? 'feedback after each card' : 'answers at the end'}
+                </span>
+                {last && (
+                  <span className="status status-finished">
+                    Last result: {last.correct} of {last.scored}
+                    {last.round > 1 ? ` (retry round ${last.round})` : ''}
+                  </span>
+                )}
+              </div>
+              <button type="button" className="primary" onClick={() => session.startQuickCheck(set.id)} aria-label={`Start ${set.title}`}>
+                Start
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function WorkedProblems({ session }: { session: Session }) {
+  const { test } = session;
+  return (
+    <>
       <h3>Open Problem</h3>
       <ol className="problem-list">
         {test.problems.map((problem) => {
@@ -150,6 +196,6 @@ function ProblemList({ session }: { session: Session }) {
           );
         })}
       </ol>
-    </section>
+    </>
   );
 }

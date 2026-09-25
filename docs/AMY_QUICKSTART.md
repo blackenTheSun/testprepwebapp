@@ -19,3 +19,16 @@
 8. **Try again.** **Reset problem** clears only that problem. **Download Attempt** saves your work as a file if you want to keep it.
 
 Your work is kept only while the page is open. Closing the tab clears it.
+
+## Visual Rapid Checks
+
+Some test files also have **Visual Rapid Checks**, listed above the problems. To try one without a file, click **Visual checks (placeholder)** under *Use Included Examples*.
+
+1. Click **Start** on a check.
+2. Each card shows a picture and a question. Pick an answer and click **Submit** (or press Enter).
+   - **Matching cards:** the picture has lettered markers. Choose a label for each letter from its dropdown. Once a label is used, it disappears from the other dropdowns. There are more labels than letters, so some are decoys.
+   - **True or false:** decide whether the statement about the picture is right.
+   - **Recall cards:** answer on paper or your iPad first, then click **Reveal reference**, compare, and mark **Got It** or **Review**.
+3. **Timed cards** (rapid rounds) show a countdown in the corner. If it runs out, the card counts as unanswered; click **Show answer** to see it now, or **Next card** to see it at the end.
+4. Some checks show the answer after every card; others save all answers for the end.
+5. The **summary** lists what you missed, what ran out of time, and what you marked Review, with the correct answers. **Retry Missed and Review** runs just those cards again.
