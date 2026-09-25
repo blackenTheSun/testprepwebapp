@@ -66,6 +66,7 @@ export type Drawable =
   | { kind: 'polygon'; points: Projected[]; depth: number; shade: number; className: string; color?: string }
   | { kind: 'segment'; a: Projected; b: Projected; depth: number; arrow: boolean; className: string; color?: string }
   | { kind: 'dot'; at: Projected; depth: number; className: string; color?: string }
+  | { kind: 'sphere'; at: Projected; rim: Projected; depth: number; className: string; color?: string }
   | { kind: 'text'; at: Projected; text: string; depth: number; dx: number; dy: number; className: string; color?: string };
 
 const avgDepth = (points: Projected[]) => points.reduce((s, p) => s + p.depth, 0) / points.length;
@@ -183,6 +184,26 @@ abstract class SolidObject<T extends Of<'box' | 'cylinder'>> extends Object3D<T>
 }
 
 class BoxObject extends SolidObject<Of<'box'>> {
+  /** `wireframe: true` draws the 12 edges only, so objects inside (e.g. unit-cell atoms) stay visible. */
+  override drawables(camera: Camera): Drawable[] {
+    if (!this.json.wireframe) return super.drawables(camera);
+    const [cx, cy, cz] = this.json.center;
+    const [hx, hy, hz] = scale(this.json.size, 0.5);
+    const c = (sx: number, sy: number, sz: number): Vec3 => [cx + sx * hx, cy + sy * hy, cz + sz * hz];
+    const edges: [Vec3, Vec3][] = [];
+    for (const s1 of [-1, 1]) {
+      for (const s2 of [-1, 1]) {
+        edges.push([c(-1, s1, s2), c(1, s1, s2)], [c(s1, -1, s2), c(s1, 1, s2)], [c(s1, s2, -1), c(s1, s2, 1)]);
+      }
+    }
+    const segments: Drawable[] = edges.map(([p, q]) => {
+      const a = camera.project(p);
+      const b = camera.project(q);
+      return { kind: 'segment', a, b, depth: (a.depth + b.depth) / 2, arrow: false, className: `${this.cls} sc-wire`, color: this.json.color };
+    });
+    return [...segments, ...this.label(camera, this.labelAnchor(), this.json.label, 0, -10)];
+  }
+
   protected faces() {
     const [cx, cy, cz] = this.json.center;
     const [hx, hy, hz] = scale(this.json.size, 0.5);
@@ -230,6 +251,23 @@ class CylinderObject extends SolidObject<Of<'cylinder'>> {
   }
 }
 
+/** Generic sphere (atoms, particles): a shaded disc at the projected centre. */
+class SphereObject extends Object3D<Of<'sphere'>> {
+  points(): Vec3[] {
+    const { center, radius } = this.json;
+    return [add(center, [radius, 0, 0]), add(center, [-radius, 0, 0]), add(center, [0, 0, radius]), add(center, [0, 0, -radius])];
+  }
+  drawables(camera: Camera): Drawable[] {
+    const { center, radius } = this.json;
+    const at = camera.project(center);
+    const rim = camera.project(add(center, scale(camera.right, radius)));
+    return [
+      { kind: 'sphere', at, rim, depth: at.depth, className: `${this.cls} sc-sphere`, color: this.json.color },
+      ...this.label(camera, center, this.json.label, 0, -(radius > 0 ? 14 : 8)),
+    ];
+  }
+}
+
 class LabelObject extends Object3D<Of<'label'>> {
   points(): Vec3[] {
     return [this.json.at];
@@ -247,6 +285,7 @@ const OBJECTS_3D: Record<Scene3dObjectJson['kind'], new (json: never) => Object3
   plane: PlaneObject,
   box: BoxObject,
   cylinder: CylinderObject,
+  sphere: SphereObject,
   label: LabelObject,
 };
 
@@ -271,7 +310,18 @@ export class SceneProjector {
   /** Drawables sorted far → near, with text always on top; plus the screen transform. */
   layout(): { drawables: Drawable[]; toScreen: (p: Projected) => { x: number; y: number } } {
     const drawables = this.objects.flatMap((o) => o.drawables(this.camera));
-    const all = drawables.flatMap((d) => (d.kind === 'polygon' ? d.points : d.kind === 'segment' ? [d.a, d.b] : [d.at]));
+    const all = drawables.flatMap((d) => {
+      if (d.kind === 'polygon') return d.points;
+      if (d.kind === 'segment') return [d.a, d.b];
+      if (d.kind === 'sphere') {
+        const r = Math.hypot(d.rim.x - d.at.x, d.rim.y - d.at.y);
+        return [
+          { ...d.at, x: d.at.x - r, y: d.at.y - r },
+          { ...d.at, x: d.at.x + r, y: d.at.y + r },
+        ];
+      }
+      return [d.at];
+    });
     const xs = all.map((p) => p.x);
     const ys = all.map((p) => p.y);
     const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -312,6 +362,17 @@ function drawDrawable(d: Drawable, toScreen: (p: Projected) => { x: number; y: n
     case 'dot': {
       const p = toScreen(d.at);
       return <circle key={key} cx={p.x} cy={p.y} r={4.5} className={`${d.className} sc-dot`} style={style} />;
+    }
+    case 'sphere': {
+      const p = toScreen(d.at);
+      const rim = toScreen(d.rim);
+      const r = Math.max(2, Math.hypot(rim.x - p.x, rim.y - p.y));
+      return (
+        <g key={key} className={d.className} style={d.color ? { color: d.color } : undefined}>
+          <circle cx={p.x} cy={p.y} r={r} className="sc-sphere-body" />
+          <circle cx={p.x - r * 0.35} cy={p.y - r * 0.35} r={r * 0.35} className="sc-sphere-shine" />
+        </g>
+      );
     }
     case 'text': {
       const p = toScreen(d.at);

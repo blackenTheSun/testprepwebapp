@@ -4,6 +4,8 @@
  */
 
 export const API_VERSION = 'guided-test-file.local/v1';
+export const API_VERSION_V2 = 'guided-test-file.local/v2';
+export type ApiVersion = typeof API_VERSION | typeof API_VERSION_V2;
 
 export type Latex = string | string[];
 
@@ -35,13 +37,24 @@ export type ExpressionOp =
   | 'power'
   | 'negate'
   | 'abs'
-  | 'sqrt';
+  | 'sqrt'
+  // v2 only; each requires angleUnit.
+  | 'sin'
+  | 'cos'
+  | 'tan'
+  | 'asin'
+  | 'acos'
+  | 'atan';
+
+export type AngleUnit = 'deg' | 'rad';
 
 export interface ExpressionNodeJson {
   op: ExpressionOp;
   slot?: string;
   value?: number;
   args?: ExpressionNodeJson[];
+  /** Trig ops (v2): unit of the input for sin/cos/tan, of the output for asin/acos/atan. */
+  angleUnit?: AngleUnit;
 }
 
 export interface FormulaTeachingJson {
@@ -118,6 +131,8 @@ interface Common2d {
   id?: string;
   label?: string;
   color?: string;
+  /** v2: draw in the highlight colour. */
+  highlight?: boolean;
 }
 
 export type DiagramPrimitiveJson = Common2d &
@@ -130,9 +145,7 @@ export type DiagramPrimitiveJson = Common2d &
     | { kind: 'text'; x: number; y: number; text: string }
   );
 
-interface Common3d extends Common2d {
-  highlight?: boolean;
-}
+type Common3d = Common2d;
 
 export type Scene3dObjectJson = Common3d &
   (
@@ -140,7 +153,8 @@ export type Scene3dObjectJson = Common3d &
     | { kind: 'point'; at: Vec3 }
     | { kind: 'line' | 'arrow'; from: Vec3; to: Vec3 }
     | { kind: 'plane'; origin: Vec3; u: Vec3; v: Vec3 }
-    | { kind: 'box'; center: Vec3; size: Vec3 }
+    | { kind: 'box'; center: Vec3; size: Vec3; wireframe?: boolean }
+    | { kind: 'sphere'; center: Vec3; radius: number }
     | { kind: 'cylinder'; from: Vec3; to: Vec3; radius: number }
     | { kind: 'label'; at: Vec3; text: string }
   );
@@ -189,8 +203,12 @@ export interface ProblemJson {
   solutionPath: SolutionStepJson[];
 }
 
+/**
+ * A test file in the engine's normalized shape. v1 files arrive in exactly this shape; v2 files
+ * are normalized into it by `ContractV2` (missing arrays become empty).
+ */
 export interface TestFileJson {
-  apiVersion: typeof API_VERSION;
+  apiVersion: ApiVersion;
   id: string;
   version?: string;
   title: string;
@@ -198,6 +216,116 @@ export interface TestFileJson {
   formulaSheet: FormulaJson[];
   conversions: ConversionJson[];
   problems: ProblemJson[];
+  /** v2 only. */
+  quickCheckSets?: QuickCheckSetJson[];
+}
+
+/** A v2 file as authored: every activity list is optional (at least one must be non-empty). */
+export interface TestFileV2Json {
+  apiVersion: typeof API_VERSION_V2;
+  id: string;
+  version?: string;
+  title: string;
+  description?: string;
+  formulaSheet?: FormulaJson[];
+  conversions?: ConversionJson[];
+  problems?: ProblemJson[];
+  quickCheckSets?: QuickCheckSetJson[];
+}
+
+// ---- v2 quick checks -------------------------------------------------------------
+
+export interface CalloutJson {
+  id: string;
+  xPct: number;
+  yPct: number;
+}
+
+export interface TypedSceneVisualJson {
+  kind: 'typedScene';
+  scene: VisualJson;
+  caption?: string;
+  callouts?: CalloutJson[];
+}
+
+export interface ImageVisualJson {
+  kind: 'image';
+  mediaType: 'image/png' | 'image/jpeg';
+  /** Raw base64 (no `data:` prefix). */
+  data: string;
+  altText: string;
+  width: number;
+  height: number;
+  caption?: string;
+  callouts?: CalloutJson[];
+}
+
+export type PanelVisualJson = TypedSceneVisualJson | ImageVisualJson;
+
+export interface PairVisualJson {
+  kind: 'pair';
+  altText?: string;
+  panels: [PanelVisualJson, PanelVisualJson];
+}
+
+export type ItemVisualJson = PanelVisualJson | PairVisualJson;
+
+interface ItemCommon {
+  id: string;
+  /** Per-card time limit, used in rapidVisual sets. */
+  displaySeconds?: number;
+}
+
+export interface SingleChoiceItemJson extends ItemCommon {
+  type: 'singleChoice';
+  prompt: string;
+  visual?: ItemVisualJson;
+  options: { id: string; text: string }[];
+  correctOptionId: string;
+  explanation: string;
+}
+
+export interface TrueFalseItemJson extends ItemCommon {
+  type: 'trueFalse';
+  visual: ItemVisualJson;
+  statement: string;
+  answer: boolean;
+  explanation: string;
+}
+
+export interface MatchingItemJson extends ItemCommon {
+  type: 'matching';
+  prompt?: string;
+  visual: ItemVisualJson;
+  prompts: { id: string; text: string }[];
+  /** Term bank; may include decoys. */
+  options: string[];
+  /** Callout id → correct term. */
+  answers: Record<string, string>;
+  explanation?: string;
+}
+
+export interface RecallItemJson extends ItemCommon {
+  type: 'recall';
+  responseMode: 'written' | 'sketch';
+  prompt: string;
+  /** Shown with the prompt. */
+  visual?: ItemVisualJson;
+  /** Shown only when the reference is revealed (e.g. the correct sketch). */
+  referenceVisual?: ItemVisualJson;
+  modelAnswer?: string;
+  keyPoints?: string[];
+}
+
+export type QuickCheckItemJson = SingleChoiceItemJson | TrueFalseItemJson | MatchingItemJson | RecallItemJson;
+
+export interface QuickCheckSetJson {
+  id: string;
+  title: string;
+  instructions: string;
+  feedbackMode: 'immediate' | 'end';
+  presentationMode: 'standard' | 'rapidVisual';
+  items: QuickCheckItemJson[];
 }
 
 export function latexLines(latex: Latex | undefined): string[] {

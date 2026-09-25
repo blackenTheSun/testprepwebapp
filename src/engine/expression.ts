@@ -1,4 +1,4 @@
-import type { ExpressionNodeJson, ExpressionOp } from '../contract/types';
+import type { AngleUnit, ExpressionNodeJson, ExpressionOp } from '../contract/types';
 
 /** Thrown when a test file's expression tree is malformed (unknown op, wrong arity, missing field). */
 export class ExpressionStructureError extends Error {
@@ -170,6 +170,102 @@ export class SqrtNode extends OperatorNode {
   }
 }
 
+// ---- Trigonometry (v2) -----------------------------------------------------------------
+
+const DEG = Math.PI / 180;
+/** |cos| below this is treated as zero, so tan(90°) is an error rather than ~1.6e16. */
+const TAN_POLE_EPSILON = 1e-12;
+
+/**
+ * Named trig with an explicit angle unit. For sin/cos/tan the unit applies to the input angle;
+ * for asin/acos/atan it applies to the returned angle.
+ */
+export abstract class TrigNode extends OperatorNode {
+  constructor(
+    args: readonly ExpressionNode[],
+    readonly angleUnit: AngleUnit,
+  ) {
+    super(args);
+  }
+
+  protected toRadians(angle: number): number {
+    return this.angleUnit === 'deg' ? angle * DEG : angle;
+  }
+
+  protected fromRadians(angle: number): number {
+    return this.angleUnit === 'deg' ? angle / DEG : angle;
+  }
+}
+
+export class SinNode extends TrigNode {
+  readonly op = 'sin';
+  protected apply([a]: number[]): number {
+    return Math.sin(this.toRadians(a));
+  }
+}
+
+export class CosNode extends TrigNode {
+  readonly op = 'cos';
+  protected apply([a]: number[]): number {
+    return Math.cos(this.toRadians(a));
+  }
+}
+
+export class TanNode extends TrigNode {
+  readonly op = 'tan';
+  protected apply([a]: number[]): number {
+    const radians = this.toRadians(a);
+    if (Math.abs(Math.cos(radians)) < TAN_POLE_EPSILON) {
+      throw new EvaluationError(`tan is undefined at ${a} ${this.angleUnit === 'deg' ? 'degrees' : 'radians'}`);
+    }
+    return Math.tan(radians);
+  }
+}
+
+abstract class InverseTrigNode extends TrigNode {
+  protected requireUnitRange(a: number): void {
+    if (a < -1 || a > 1) throw new EvaluationError(`${this.op} needs a value between -1 and 1, got ${a}`);
+  }
+}
+
+export class AsinNode extends InverseTrigNode {
+  readonly op = 'asin';
+  protected apply([a]: number[]): number {
+    this.requireUnitRange(a);
+    return this.fromRadians(Math.asin(a));
+  }
+}
+
+export class AcosNode extends InverseTrigNode {
+  readonly op = 'acos';
+  protected apply([a]: number[]): number {
+    this.requireUnitRange(a);
+    return this.fromRadians(Math.acos(a));
+  }
+}
+
+export class AtanNode extends InverseTrigNode {
+  readonly op = 'atan';
+  protected apply([a]: number[]): number {
+    return this.fromRadians(Math.atan(a));
+  }
+}
+
+type TrigClass = new (args: ExpressionNode[], angleUnit: AngleUnit) => TrigNode;
+
+function trigFactory(cls: TrigClass) {
+  return (json: ExpressionNodeJson, path: string): ExpressionNode => {
+    if (json.angleUnit !== 'deg' && json.angleUnit !== 'rad') {
+      throw new ExpressionStructureError(`"${json.op}" needs "angleUnit": "deg" or "rad"`, `${path}/angleUnit`);
+    }
+    const args = json.args;
+    if (!Array.isArray(args) || args.length !== 1) {
+      throw new ExpressionStructureError(`"${json.op}" takes exactly 1 argument(s), got ${Array.isArray(args) ? args.length : 0}`, `${path}/args`);
+    }
+    return new cls([ExpressionNode.fromJson(args[0], `${path}/args/0`)], json.angleUnit);
+  };
+}
+
 type OperatorClass = (new (args: ExpressionNode[]) => OperatorNode) & { minArgs: number; maxArgs: number };
 
 function operatorFactory(cls: OperatorClass) {
@@ -203,4 +299,10 @@ const NODE_FACTORIES: Record<ExpressionOp, (json: ExpressionNodeJson, path: stri
   negate: operatorFactory(NegateNode),
   abs: operatorFactory(AbsNode),
   sqrt: operatorFactory(SqrtNode),
+  sin: trigFactory(SinNode),
+  cos: trigFactory(CosNode),
+  tan: trigFactory(TanNode),
+  asin: trigFactory(AsinNode),
+  acos: trigFactory(AcosNode),
+  atan: trigFactory(AtanNode),
 };

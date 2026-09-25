@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { TestFileLoader } from '../../src/contract/loader';
 import type { TestFileJson } from '../../src/contract/types';
-import { TestFileValidator } from '../../src/contract/validate';
+import { TestFileValidator } from '../../src/contract/contracts';
 import { clone, loadFixture, readRepoFile } from './helpers';
 
 const validator = new TestFileValidator();

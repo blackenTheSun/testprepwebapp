@@ -72,7 +72,7 @@ Behaviour details:
 - **Matching one-to-one:** a term chosen for one callout is disabled in the other dropdowns, until it is cleared or changed.
 - **Immediate feedback:** after Submit the app shows correct/incorrect, the explanation, and for matching the correct labeled overlay with each pair ✓/✗. Then **Next**.
 - **End feedback:** Submit just advances, and all feedback appears in the summary. The summary shows the correct mapping for every matching item.
-- **rapidVisual:** a visible countdown per card when `displaySeconds` is set. Answering stops that card's countdown. Expiry records `unanswered` and moves straight to the next card, and the card appears in the summary and in Retry.
+- **rapidVisual:** a visible countdown per card when `displaySeconds` is set. Answering stops that card's countdown. On expiry the card is recorded as `unanswered` and locked, and Amy chooses **Show answer** (reveal the correct answer and explanation now) or **Next card** (see it in the end summary). Either way the card appears in the summary and in Retry.
 - **Recall:** shows the prompt → **Reveal reference** → model answer / key points / reference visual → **Got It** or **Review**. There is no text box and no drawing canvas.
 - **Trig:** `TrigNode` subclasses of `OperatorNode` (`Sin/Cos/Tan/Asin/Acos/Atan`) handle the degree/radian conversion. `asin`/`acos` outside [-1, 1] and `tan` where cos ≈ 0 raise a readable `EvaluationError`. They are available to any v2 formula, so the load-time answer-key check covers them automatically.
 
@@ -120,18 +120,15 @@ Each milestone ends with a report in `docs/milestones/` (R0.md, R1.md, R2.md), n
 | Deliberate recall | `RecallItem` offers only Got It / Review; E2E asserts there's no text or drawing input |
 | Safe math and errors | Trig unit tests plus the fixture's trig item; E2E loads invalid fixtures (bad asset, bad callout, small bank, duplicate target, unknown type) and checks the error text |
 
-## 7a. Decisions I'll make unless you say otherwise
+## 7a. Decisions (confirmed by Brent)
 
 1. **Trig for learners:** trig is available in authored **formula cards** (so the dropdown formula flow computes it). I won't add sin/cos to the learner's Basic math menu, because that would need a degree/radian choice in her UI and the SOW only asks for *authored* calculations.
 2. **Visual comparison** is a `singleChoice` item with a `pair` visual, not a separate item type. The SOW says no new scoring engine is needed.
-3. **Expiry in immediate-feedback mode** advances straight to the next card; the expired card's answer and explanation appear in the summary.
+3. **Card expiry (changed per Brent):** when a card's time runs out it is recorded as unanswered and locked, and Amy gets two buttons: **Show answer** (reveal it now) or **Next card** (review it at the end). This applies in both feedback modes.
 4. **No persistence:** the summary and retry live only in the open page, as in v0.2.
 
-## 8. Open questions
+## 8. Resolved questions
 
-1. **Proof fixture content.** The SOW says you supply or approve its wording, images, labels and explanations, and you asked me not to generate problems. Options:
-   - (a) You provide the v2 fixture (with PNG/JPEG images).
-   - (b) I build a *placeholder* fixture that exercises every feature with obviously generic content (e.g. "Shape A / Shape B" typed scenes and one small generated PNG) for automated testing, and you replace it with real content.
-
-   **I recommend (b)** for R0–R2, so the ACs are proven now, with your real fixture swapped in when ready.
-2. **Where the "explicit-angle trig item" lives.** Quick-check items have no calculations in the SOW's item list, so I plan to show it as a worked problem inside the v2 fixture (for example a Bragg's-law formula using `sin` in degrees). Is that what you intended, or do you want a quick-check item whose correct option is verified by an authored trig calculation?
+1. **Proof fixture:** I build a *placeholder* v2 fixture with obviously generic content (shapes, a generic ramp-angle trig problem, generated PNG/JPEG images) that exercises every feature. Brent swaps in approved course content later. **(agreed)**
+2. **Trig item:** a worked problem inside the v2 fixture whose formula uses `sin` in degrees. **(agreed)**
+3. **Card expiry:** Amy chooses Show answer now or Next card (review at end). **(Brent)**

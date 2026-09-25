@@ -1,6 +1,13 @@
-# Test File Guide (`guided-test-file.local/v1`)
+# Test File Guide (`guided-test-file.local/v1` and `/v2`)
 
-This guide explains how to write a test file the app can open. The formal contract is [handoff/test-file.local.v1.schema.json](handoff/test-file.local.v1.schema.json). Two complete examples are [handoff/engr206-local.test.example.json](handoff/engr206-local.test.example.json) and [handoff/mechanics-of-materials.local.test.example.json](handoff/mechanics-of-materials.local.test.example.json).
+This guide explains how to write a test file the app can open. Sections 1–8 cover worked problems, which work the same in both versions. [Section 9](#9-v2-visual-rapid-checks) covers the v2 additions: visual rapid-check sets, embedded pictures, callouts, trig, and spheres.
+
+| Version | Contract | Examples |
+| --- | --- | --- |
+| `guided-test-file.local/v1` (worked problems only) | [handoff/test-file.local.v1.schema.json](handoff/test-file.local.v1.schema.json) | [ENGR 206](handoff/engr206-local.test.example.json), [Mechanics of Materials](handoff/mechanics-of-materials.local.test.example.json) |
+| `guided-test-file.local/v2` (worked problems and/or rapid checks) | [handoff/test-file.local.v2.schema.json](handoff/test-file.local.v2.schema.json) | [Placeholder visual checks](handoff/v0.3/placeholder-visual-checks.test.example.json) |
+
+Use v2 for new files. Everything in sections 1–8 is also valid in v2, except that `apiVersion` is `"guided-test-file.local/v2"`.
 
 A test file is one JSON object with complete, fixed problems. It contains no random ranges, templates, code, image URLs, or free-form expressions.
 
@@ -210,3 +217,123 @@ Paste this, then attach or paste the homework / formula sheet / practice exam:
 > Produce one valid JSON object conforming to `guided-test-file.local/v1` (schema and field guide attached). Create complete fixed problems only; do not use random ranges, templates, code, external image URLs, or executable expressions. Include every formula (as an expression tree using only slot, number, add, subtract, multiply, divide, power, negate, abs, sqrt), every given, the target, a declarative `diagram2d/v1` or `scene3d/v1` visual using only the documented primitive kinds and fields, the allowed formula and conversion ids, and a full ordered `solutionPath`. Put any constant the learner must select (such as 2, pi, or g) in `givens` with `quantityType: "constant"` and a readable name like "Constant pi". Basic-math steps bind `left` and `right` (`sqrt` binds `value`); conversion steps bind `value`; final answers bind `answer`. Every numeric step output must include the correctly calculated `value`. Every solution step must explain `whyNow`, `whatToNotice`, `whyThisOperation`, `inputMeaning`, and `resultUse` in clear teaching language. Output only the JSON.
 
 Save the reply as a `.json` file and open it in the app. If it reports errors, paste them back to ChatGPT and ask it to fix exactly those paths.
+
+---
+
+## 9. v2: visual rapid checks
+
+A v2 file has `"apiVersion": "guided-test-file.local/v2"` and may contain `problems`, `quickCheckSets`, or both; at least one must be non-empty. `formulaSheet` and `conversions` are optional in v2, so a rapid-check-only file can leave them out. The complete working example is [handoff/v0.3/placeholder-visual-checks.test.example.json](handoff/v0.3/placeholder-visual-checks.test.example.json).
+
+### 9.1 Quick-check sets (`quickCheckSets[]`)
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| `id`, `title` | yes | |
+| `instructions` | yes | Shown before the first card (may be `""`) |
+| `feedbackMode` | yes | `"immediate"` (answer and explanation after each card) or `"end"` (everything in the summary) |
+| `presentationMode` | yes | `"standard"` or `"rapidVisual"` (picture cards; every item needs a `visual`; per-card timers allowed) |
+| `items` | yes | Shown in exactly this order; the app never shuffles cards or options |
+
+### 9.2 Item types (`items[]`, chosen by `type`)
+
+Every item has an `id` (unique within its set). In `rapidVisual` sets, any item may add `displaySeconds` (up to 600): a visible countdown, after which the card counts as unanswered and Amy can show the answer or move on.
+
+**Visual identification: `singleChoice`**
+
+```json
+{ "id": "identify-structure", "type": "singleChoice", "prompt": "Which structure is shown?",
+  "visual": { ... }, "options": [ { "id": "bcc", "text": "BCC" }, { "id": "fcc", "text": "FCC" }, { "id": "hcp", "text": "HCP" } ],
+  "correctOptionId": "bcc", "explanation": "Atoms at the eight corners plus one at the body centre." }
+```
+
+At least 2 options with unique ids (2+ characters each), exactly one `correctOptionId`, and an `explanation`. For a comparison, use a `pair` visual (§9.3) and options like "Panel A" / "Panel B". To connect a picture to a rule, follow the identification card with another `singleChoice` about the related fact or formula; its `visual` is optional in a standard set.
+
+**Visual true/false: `trueFalse`**
+
+```json
+{ "id": "tf-body-centre", "type": "trueFalse", "visual": { ... },
+  "statement": "The highlighted atom is at a face centre.", "answer": false,
+  "explanation": "It is at the body centre: inside the cell, equally far from all eight corners." }
+```
+
+`explanation` is required. Write it as the correction Amy should read when the claim is false.
+
+**Diagram-label matching: `matching`**
+
+```json
+{ "id": "label-bragg", "type": "matching", "prompt": "Name each marked part.",
+  "visual": { "kind": "image", ..., "callouts": [ { "id": "A", "xPct": 42, "yPct": 25 }, { "id": "B", "xPct": 70, "yPct": 60 } ] },
+  "prompts": [ { "id": "A", "text": "Name callout A" }, { "id": "B", "text": "Name callout B" } ],
+  "options": [ "incident beam", "diffracted beam", "plane spacing d", "Bragg angle θ", "unit-cell edge" ],
+  "answers": { "A": "incident beam", "B": "Bragg angle θ" },
+  "explanation": "Optional note shown with the answers." }
+```
+
+Rules (the app rejects the file otherwise):
+- The `visual` is one `typedScene` or `image` (not a `pair`), with at least 2 `callouts`.
+- There is exactly one prompt per callout, using the same ids.
+- `options` is the label bank: unique terms, at least as many as there are callouts. Extra terms are decoys.
+- `answers` gives every callout a term from the bank, and no term is correct for two callouts.
+
+Amy picks a term from a dropdown for each marker. A term chosen for one marker can't be chosen for another.
+
+**Deliberate recall: `recall`** (paper first, never graded)
+
+```json
+{ "id": "sketch-bcc", "type": "recall", "responseMode": "sketch",
+  "prompt": "On paper, sketch a BCC unit cell.",
+  "referenceVisual": { ... }, "keyPoints": [ "8 corner atoms", "1 body-centre atom" ] }
+```
+
+`responseMode` is `"written"` or `"sketch"`, and the item needs a `modelAnswer`, `keyPoints`, or both. The optional `visual` is shown with the prompt; `referenceVisual` is shown only when Amy reveals the reference. She then marks **Got It** or **Review**. Keep these few; use them only where producing the answer from memory is the point.
+
+### 9.3 Visuals for quick-check items (`visual`, chosen by `kind`)
+
+| `kind` | Fields | Use |
+| --- | --- | --- |
+| `typedScene` | `scene`: any `latex/v1`, `diagram2d/v1` or `scene3d/v1` visual from §5 (with its own `altText`); optional `caption`, `callouts` | Diagrams described as data |
+| `image` | `mediaType` (`"image/png"` or `"image/jpeg"`), `data` (raw base64), `altText`, `width`, `height` (pixels); optional `caption`, `callouts` | Real pictures |
+| `pair` | `panels`: exactly two `typedScene`/`image` visuals, each with an optional `caption` ("A", "B"); optional `altText` | Side-by-side comparison |
+
+**Callouts** are `{ "id": "A", "xPct": 42, "yPct": 25 }`: a visible marker at 42% across and 25% down the picture (0–100 each). Marker ids are 1–3 characters and must be unique within the visual.
+
+**Embedded pictures:**
+- Only PNG and JPEG, stored inside the file as base64 `data`. There are no links, file paths, `data:` prefixes, or SVG images; the app rejects them.
+- ChatGPT can't make real picture data. Create the picture elsewhere, then run this command and paste its output as the `visual` (fill in `altText`):
+
+  ```bash
+  npm run embed-image -- path/to/picture.png "Alt text describing the picture"
+  ```
+
+- Size limits: 1.5 MB per picture (warning above 400 KB), 20 MB per file. Crop and compress; a few hundred pixels across is usually enough.
+- `width`/`height` must have the same shape as the real picture, because callouts are placed against them (the embed command fills them in).
+
+**New scene features (v2):**
+- `sphere` in `scene3d/v1`: `{ "kind": "sphere", "center": [x, y, z], "radius": r }`, for atoms and particles.
+- `"wireframe": true` on a `box` draws only its 12 edges, so atoms inside a unit cell stay visible.
+- `"highlight": true` on any 2D primitive or 3D object draws it in the highlight colour. Use it for "what is the highlighted feature?" cards.
+
+### 9.4 Trig in formulas (v2)
+
+Expression trees may use `sin`, `cos`, `tan`, `asin`, `acos`, `atan`. Each takes exactly one argument and **must** declare `angleUnit`:
+
+```json
+{ "op": "sin", "angleUnit": "deg", "args": [ { "op": "slot", "slot": "angle" } ] }
+```
+
+For `sin`/`cos`/`tan`, `angleUnit` is the unit of the input angle. For `asin`/`acos`/`atan`, it is the unit of the returned angle. `asin`/`acos` of a value outside −1…1, or `tan` at 90°, is reported as a calculation error.
+
+### 9.5 Author checklist (v2)
+
+- [ ] `apiVersion` is `guided-test-file.local/v2`, and there is at least one problem or quick-check set.
+- [ ] A visual item is used where recognition is the skill; recall items are kept to a few.
+- [ ] Matching items have clear callouts, more terms than markers, plausible decoys, and each correct term used once.
+- [ ] Every picture is PNG/JPEG via `npm run embed-image`, with alt text that describes it for someone who can't see it.
+- [ ] Every trig op declares `angleUnit`.
+- [ ] Every item Amy can miss has an `explanation` (or `keyPoints` for recall) that teaches the correction.
+- [ ] `displaySeconds` is only in `rapidVisual` sets, and only where speed matters.
+- [ ] Load the file in the app; fix any listed paths; read any answer-key warnings.
+
+### 9.6 ChatGPT prompt (v2 rapid checks)
+
+> Produce one valid JSON object conforming to `guided-test-file.local/v2` (schema and field guide attached). Create `quickCheckSets` only (no `problems` unless I ask), using item types `singleChoice`, `trueFalse`, `matching` and `recall` exactly as documented. Describe every picture as a `typedScene` using only the documented `diagram2d/v1` or `scene3d/v1` primitives (including `sphere`, `wireframe` boxes and `highlight`). Where I have given you a real image block, reuse it exactly. Never invent image data, URLs or file paths. Every option id and item id is at least 2 characters. Matching items: one prompt per callout, a larger term bank with plausible decoys, and each correct term used once. Every closed-answer item has an `explanation` that teaches the correction; every recall item has `keyPoints`. Declare `angleUnit` on any trig. Output only the JSON.

@@ -840,3 +840,37 @@ polygon.sc-highlight {
   background: var(--primary);
   filter: brightness(1.08);
 }
+
+/* v2 scene additions */
+.sc-wire line {
+  stroke: var(--diagram-stroke);
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+}
+.sc-sphere {
+  color: var(--scene-solid);
+}
+.sc-sphere-body {
+  fill: currentColor;
+  stroke: var(--diagram-stroke);
+  stroke-width: 1;
+}
+.sc-sphere-shine {
+  fill: #ffffff;
+  opacity: 0.35;
+}
+.sc-highlight.sc-sphere {
+  color: var(--highlight);
+}
+.sc-highlight.sc-wire line {
+  stroke: var(--highlight);
+}
+.dg-highlight,
+.dg-highlight .dg-stroke {
+  stroke: var(--highlight);
+  color: var(--highlight);
+}
+.dg-highlight .dg-label {
+  fill: var(--highlight);
+  font-weight: 700;
+}

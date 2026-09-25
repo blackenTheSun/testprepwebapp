@@ -1,6 +1,7 @@
 import { TestFile } from '../engine/testFile';
-import type { TestFileJson } from './types';
-import { TestFileValidator, type ValidationIssue } from './validate';
+import { TestFileValidator } from './contracts';
+import { FILE_MAX_BYTES, formatFileSize } from './rulesV2';
+import type { ValidationIssue } from './validate';
 
 export type LoadResult =
   | { ok: true; test: TestFile; warnings: ValidationIssue[]; sourceName: string }
@@ -29,6 +30,14 @@ export class TestFileLoader {
   }
 
   fromText(text: string, sourceName: string): LoadResult {
+    if (text.length > FILE_MAX_BYTES) {
+      return {
+        ok: false,
+        sourceName,
+        warnings: [],
+        errors: [{ severity: 'error', rule: 'file-size', path: '/', message: `The file is ${formatFileSize(text.length)}; the limit is ${formatFileSize(FILE_MAX_BYTES)}. Compress or remove large pictures.` }],
+      };
+    }
     let data: unknown;
     try {
       data = JSON.parse(text.replace(/^﻿/, ''));
@@ -44,9 +53,9 @@ export class TestFileLoader {
   }
 
   fromData(data: unknown, sourceName: string): LoadResult {
-    const report = this.validator.validate(data);
-    if (!report.ok) return { ok: false, sourceName, errors: report.errors, warnings: report.warnings };
-    return { ok: true, sourceName, test: new TestFile(data as TestFileJson), warnings: report.warnings };
+    const { report, file } = this.validator.validateAndNormalize(data);
+    if (!report.ok || !file) return { ok: false, sourceName, errors: report.errors, warnings: report.warnings };
+    return { ok: true, sourceName, test: new TestFile(file), warnings: report.warnings };
   }
 
   /** "Not valid JSON: Unexpected token } (line 12, column 5)". */

@@ -12,7 +12,9 @@
     "test": "npm run gen && vitest run",
     "test:e2e": "playwright test --project=chromium",
     "check": "npm run typecheck && npm test && npm run build && npm run test:e2e",
-    "test:e2e:all": "playwright test --project=chromium --project=firefox --project=webkit"
+    "test:e2e:all": "playwright test --project=chromium --project=firefox --project=webkit",
+    "embed-image": "node scripts/embed-image.ts",
+    "compose-schema": "node scripts/compose-v2-schema.mjs"
   },
   "dependencies": {
     "katex": "^0.18.9",
@@ -32,6 +34,6 @@
     "vitest": "^5.0.1"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.6"
   }
 }

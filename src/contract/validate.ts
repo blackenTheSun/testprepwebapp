@@ -3,7 +3,7 @@ import { ExpressionNode, ExpressionStructureError } from '../engine/expression';
 import { formatNumber } from '../engine/format';
 import { mathOperator } from '../engine/operations';
 import { TestFile } from '../engine/testFile';
-import schemaValidate, { type SchemaError } from './generated/schemaValidator.js';
+import type { SchemaError } from './generated/schemaValidatorV1.js';
 import type { ProblemJson, SolutionStepJson, TestFileJson } from './types';
 
 export type Severity = 'error' | 'warning';
@@ -50,13 +50,17 @@ export abstract class ValidationRule {
 
 // ---- Schema ------------------------------------------------------------------
 
-/** Structural validation against the (build-time compiled) JSON Schema. */
+export type CompiledSchema = ((data: unknown) => boolean) & { errors?: SchemaError[] | null };
+
+/** Structural validation against one contract version's (build-time compiled) JSON Schema. */
 export class SchemaCheck {
   readonly name = 'schema';
 
+  constructor(private readonly schemaValidate: CompiledSchema) {}
+
   check(data: unknown, report: ValidationReport): void {
-    if (schemaValidate(data)) return;
-    for (const error of SchemaCheck.simplify(schemaValidate.errors ?? [])) {
+    if (this.schemaValidate(data)) return;
+    for (const error of SchemaCheck.simplify(this.schemaValidate.errors ?? [])) {
       report.error(this.name, error.instancePath || '/', SchemaCheck.describe(error));
     }
   }
@@ -86,6 +90,9 @@ export class SchemaCheck {
       case 'const':
         return `Must be ${JSON.stringify(p.allowedValue)}`;
       case 'pattern':
+        if (error.instancePath.endsWith('/data')) {
+          return 'Must be raw base64 image data (no "data:" prefix, URL, file path or line breaks)';
+        }
         return 'Must start with a letter and use only letters, digits, ".", "_" or "-" (2-128 characters)';
       case 'type':
         return `Must be ${String(p.type)}`;
@@ -93,6 +100,16 @@ export class SchemaCheck {
         return `Needs at least ${String(p.limit)} item(s)`;
       case 'maxItems':
         return `Allows at most ${String(p.limit)} item(s)`;
+      case 'minimum':
+        return `Must be at least ${String(p.limit)}`;
+      case 'maximum':
+        return `Must be at most ${String(p.limit)}`;
+      case 'exclusiveMinimum':
+        return `Must be greater than ${String(p.limit)}`;
+      case 'minLength':
+        return p.limit === 1 ? 'Must not be empty' : `Must be at least ${String(p.limit)} characters`;
+      case 'maxLength':
+        return `Must be at most ${String(p.limit)} characters`;
       default:
         return error.message ?? `Failed "${error.keyword}" check`;
     }
@@ -306,32 +323,5 @@ export class AuthoredValueRule extends ValidationRule {
         }
       });
     }
-  }
-}
-
-/**
- * Runs the schema check, then (only if the structure is valid) the semantic rules, then the
- * answer-key recomputation (only if there are no errors, since it relies on valid references).
- */
-export class TestFileValidator {
-  constructor(
-    private readonly rules: readonly ValidationRule[] = [
-      new UniqueIdRule(),
-      new FormulaExpressionRule(),
-      new ReferenceRule(),
-      new BindingRule(),
-      new GivenValueRule(),
-    ],
-    private readonly answerKeyRule: ValidationRule = new AuthoredValueRule(),
-  ) {}
-
-  validate(data: unknown): ValidationReport {
-    const report = new ValidationReport();
-    new SchemaCheck().check(data, report);
-    if (!report.ok) return report;
-    const file = data as TestFileJson;
-    for (const rule of this.rules) rule.check(file, report);
-    if (report.ok) this.answerKeyRule.check(file, report);
-    return report;
   }
 }

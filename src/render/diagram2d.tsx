@@ -290,7 +290,15 @@ export function Diagram2D({ visual }: { visual: Diagram2dJson }) {
       aria-label={visual.altText}
       data-visual="diagram2d/v1"
     >
-      {ordered.map((json, i) => Primitive2D.create(json, visual.viewBox).draw(`p${i}`))}
+      {ordered.map((json, i) =>
+        json.highlight ? (
+          <g key={`h${i}`} className="dg-highlight">
+            {Primitive2D.create(json, visual.viewBox).draw(`p${i}`)}
+          </g>
+        ) : (
+          Primitive2D.create(json, visual.viewBox).draw(`p${i}`)
+        ),
+      )}
     </svg>
   );
 }

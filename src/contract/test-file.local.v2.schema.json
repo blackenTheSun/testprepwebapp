@@ -1,0 +1,2711 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guided-test-prep.local/schemas/test-file.local.v2.schema.json",
+  "title": "Guided Test Prep Local Test File v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "apiVersion",
+    "id",
+    "title"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "guided-test-file.local/v2"
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "formulaSheet": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/formula"
+      }
+    },
+    "conversions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/conversion"
+      }
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/problem"
+      }
+    },
+    "quickCheckSets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/quickCheckSet"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,127}$"
+    },
+    "latex": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "symbol"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "quantityType": {
+          "type": "string"
+        },
+        "latex": {
+          "$ref": "#/$defs/latex"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "symbol"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "quantityType": {
+          "type": "string"
+        }
+      }
+    },
+    "formula": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "latex",
+        "inputs",
+        "output",
+        "calculation",
+        "teaching"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "latex": {
+          "$ref": "#/$defs/latex"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/slot"
+          }
+        },
+        "output": {
+          "$ref": "#/$defs/slot"
+        },
+        "calculation": {
+          "$ref": "#/$defs/calculation"
+        },
+        "teaching": {
+          "$ref": "#/$defs/formulaTeaching"
+        }
+      }
+    },
+    "calculation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ast"
+      ],
+      "properties": {
+        "kind": {
+          "const": "expression/v1"
+        },
+        "ast": {
+          "$ref": "#/$defs/expressionNode"
+        }
+      }
+    },
+    "expressionNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "enum": [
+            "slot",
+            "number",
+            "add",
+            "subtract",
+            "multiply",
+            "divide",
+            "power",
+            "negate",
+            "abs",
+            "sqrt",
+            "sin",
+            "cos",
+            "tan",
+            "asin",
+            "acos",
+            "atan"
+          ]
+        },
+        "slot": {
+          "$ref": "#/$defs/id"
+        },
+        "value": {
+          "type": "number"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expressionNode"
+          }
+        },
+        "angleUnit": {
+          "enum": [
+            "deg",
+            "rad"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "slot"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "slot"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "number"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "add"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "multiply"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "subtract"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "divide"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "power"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "negate"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "abs"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "sqrt"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "sin"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args",
+              "angleUnit"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "cos"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args",
+              "angleUnit"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "tan"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args",
+              "angleUnit"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "asin"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args",
+              "angleUnit"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "acos"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args",
+              "angleUnit"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "const": "atan"
+              }
+            },
+            "required": [
+              "op"
+            ]
+          },
+          "then": {
+            "required": [
+              "args",
+              "angleUnit"
+            ],
+            "properties": {
+              "args": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "formulaTeaching": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "whatToNotice",
+        "whyThisOperation"
+      ],
+      "properties": {
+        "whatToNotice": {
+          "type": "string"
+        },
+        "whyThisOperation": {
+          "type": "string"
+        },
+        "commonMistakes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "conversion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "fromUnit",
+        "toUnit",
+        "factor"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "fromUnit": {
+          "type": "string"
+        },
+        "toUnit": {
+          "type": "string"
+        },
+        "factor": {
+          "type": "number"
+        },
+        "outputName": {
+          "type": "string"
+        },
+        "outputSymbol": {
+          "type": "string"
+        },
+        "latex": {
+          "$ref": "#/$defs/latex"
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "latex": {
+          "$ref": "#/$defs/latex"
+        }
+      }
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "prompt",
+        "givens",
+        "target",
+        "allowedFormulaIds",
+        "solutionPath"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "prompt": {
+          "$ref": "#/$defs/prompt"
+        },
+        "givens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/quantity"
+          }
+        },
+        "target": {
+          "$ref": "#/$defs/slot"
+        },
+        "visual": {
+          "$ref": "#/$defs/visual"
+        },
+        "allowedFormulaIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "allowedConversionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "derivativeActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/derivativeAction"
+          }
+        },
+        "solutionPath": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/solutionStep"
+          }
+        }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "latex/v1",
+            "diagram2d/v1",
+            "scene3d/v1"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "latex/v1"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/latexVisual"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "diagram2d/v1"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagram2d"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "scene3d/v1"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3d"
+          }
+        }
+      ]
+    },
+    "latexVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "altText",
+        "latex"
+      ],
+      "properties": {
+        "type": {
+          "const": "latex/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "latex": {
+          "$ref": "#/$defs/latex"
+        }
+      }
+    },
+    "diagram2d": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "altText",
+        "viewBox",
+        "primitives"
+      ],
+      "properties": {
+        "type": {
+          "const": "diagram2d/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "viewBox": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number"
+          }
+        },
+        "primitives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagramPrimitive"
+          }
+        }
+      }
+    },
+    "diagramPrimitive": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "line",
+            "arrow",
+            "resistor",
+            "polyline",
+            "circle",
+            "voltageSource",
+            "rect",
+            "point",
+            "ground",
+            "text"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "line"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_line"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "arrow"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_arrow"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "resistor"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_resistor"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "polyline"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_polyline"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "circle"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_circle"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "voltageSource"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_voltageSource"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "rect"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_rect"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "point"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_point"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "ground"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_ground"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "text"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/diagramPrimitive_text"
+          }
+        }
+      ]
+    },
+    "scene3d": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "altText",
+        "camera",
+        "objects"
+      ],
+      "properties": {
+        "type": {
+          "const": "scene3d/v1"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "camera": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "azimuthDeg",
+            "elevationDeg"
+          ],
+          "properties": {
+            "azimuthDeg": {
+              "type": "number"
+            },
+            "elevationDeg": {
+              "type": "number"
+            },
+            "scale": {
+              "type": "number"
+            },
+            "projection": {
+              "enum": [
+                "orthographic",
+                "perspective"
+              ]
+            }
+          }
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scene3dObject"
+          }
+        }
+      }
+    },
+    "scene3dObject": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "axes",
+            "point",
+            "line",
+            "arrow",
+            "plane",
+            "box",
+            "cylinder",
+            "label",
+            "sphere"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "axes"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_axes"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "point"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_point"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "line"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_line"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "arrow"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_arrow"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "plane"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_plane"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "box"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_box"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "cylinder"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_cylinder"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "label"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_label"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "sphere"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/scene3dObject_sphere"
+          }
+        }
+      ]
+    },
+    "derivativeAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "expressionLatex",
+        "variable",
+        "resultLatex",
+        "output",
+        "teaching"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string"
+        },
+        "expressionLatex": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "resultLatex": {
+          "type": "string"
+        },
+        "numericEvaluation": {
+          "$ref": "#/$defs/quantity"
+        },
+        "output": {
+          "$ref": "#/$defs/slot"
+        },
+        "teaching": {
+          "$ref": "#/$defs/solutionTeaching"
+        }
+      }
+    },
+    "solutionTeaching": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "whyNow",
+        "whatToNotice",
+        "whyThisOperation",
+        "inputMeaning",
+        "resultUse"
+      ],
+      "properties": {
+        "whyNow": {
+          "type": "string"
+        },
+        "whatToNotice": {
+          "type": "string"
+        },
+        "whyThisOperation": {
+          "type": "string"
+        },
+        "inputMeaning": {
+          "type": "string"
+        },
+        "resultUse": {
+          "type": "string"
+        },
+        "commonMistakes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "solutionStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "teaching"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "formula",
+            "basicMath",
+            "conversion",
+            "derivative",
+            "finalAnswer"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "formulaId": {
+          "$ref": "#/$defs/id"
+        },
+        "mathOperation": {
+          "enum": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide",
+            "power",
+            "sqrt"
+          ]
+        },
+        "conversionId": {
+          "$ref": "#/$defs/id"
+        },
+        "derivativeId": {
+          "$ref": "#/$defs/id"
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "output": {
+          "$ref": "#/$defs/quantity"
+        },
+        "expectedLatex": {
+          "type": "string"
+        },
+        "teaching": {
+          "$ref": "#/$defs/solutionTeaching"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "formula"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "formulaId",
+              "bindings",
+              "output"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "basicMath"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "mathOperation",
+              "bindings",
+              "output"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "conversion"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "conversionId",
+              "bindings",
+              "output"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "derivative"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "derivativeId"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "finalAnswer"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "bindings"
+            ]
+          }
+        }
+      ]
+    },
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "number"
+      }
+    },
+    "diagramPrimitive_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "properties": {
+        "kind": {
+          "const": "line"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x1": {
+          "type": "number"
+        },
+        "y1": {
+          "type": "number"
+        },
+        "x2": {
+          "type": "number"
+        },
+        "y2": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_arrow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "properties": {
+        "kind": {
+          "const": "arrow"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x1": {
+          "type": "number"
+        },
+        "y1": {
+          "type": "number"
+        },
+        "x2": {
+          "type": "number"
+        },
+        "y2": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_resistor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "properties": {
+        "kind": {
+          "const": "resistor"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x1": {
+          "type": "number"
+        },
+        "y1": {
+          "type": "number"
+        },
+        "x2": {
+          "type": "number"
+        },
+        "y2": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_polyline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "points"
+      ],
+      "properties": {
+        "kind": {
+          "const": "polyline"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_circle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x",
+        "y",
+        "radius"
+      ],
+      "properties": {
+        "kind": {
+          "const": "circle"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_voltageSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x",
+        "y",
+        "radius"
+      ],
+      "properties": {
+        "kind": {
+          "const": "voltageSource"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_rect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "kind": {
+          "const": "rect"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "kind": {
+          "const": "point"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_ground": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "kind": {
+          "const": "ground"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagramPrimitive_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "x",
+        "y",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "const": "text"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "text": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        }
+      }
+    },
+    "scene3dObject_axes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "length"
+      ],
+      "properties": {
+        "kind": {
+          "const": "axes"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "length": {
+          "type": "number"
+        },
+        "labels": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scene3dObject_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "at"
+      ],
+      "properties": {
+        "kind": {
+          "const": "point"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "at": {
+          "$ref": "#/$defs/vec3"
+        }
+      }
+    },
+    "scene3dObject_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "from",
+        "to"
+      ],
+      "properties": {
+        "kind": {
+          "const": "line"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "from": {
+          "$ref": "#/$defs/vec3"
+        },
+        "to": {
+          "$ref": "#/$defs/vec3"
+        }
+      }
+    },
+    "scene3dObject_arrow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "from",
+        "to"
+      ],
+      "properties": {
+        "kind": {
+          "const": "arrow"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "from": {
+          "$ref": "#/$defs/vec3"
+        },
+        "to": {
+          "$ref": "#/$defs/vec3"
+        }
+      }
+    },
+    "scene3dObject_plane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "origin",
+        "u",
+        "v"
+      ],
+      "properties": {
+        "kind": {
+          "const": "plane"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "origin": {
+          "$ref": "#/$defs/vec3"
+        },
+        "u": {
+          "$ref": "#/$defs/vec3"
+        },
+        "v": {
+          "$ref": "#/$defs/vec3"
+        }
+      }
+    },
+    "scene3dObject_box": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "center",
+        "size"
+      ],
+      "properties": {
+        "kind": {
+          "const": "box"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "center": {
+          "$ref": "#/$defs/vec3"
+        },
+        "size": {
+          "$ref": "#/$defs/vec3"
+        },
+        "wireframe": {
+          "type": "boolean"
+        }
+      }
+    },
+    "scene3dObject_cylinder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "from",
+        "to",
+        "radius"
+      ],
+      "properties": {
+        "kind": {
+          "const": "cylinder"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "from": {
+          "$ref": "#/$defs/vec3"
+        },
+        "to": {
+          "$ref": "#/$defs/vec3"
+        },
+        "radius": {
+          "type": "number"
+        }
+      }
+    },
+    "scene3dObject_label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "at",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "const": "label"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "at": {
+          "$ref": "#/$defs/vec3"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "scene3dObject_sphere": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "center",
+        "radius"
+      ],
+      "properties": {
+        "kind": {
+          "const": "sphere"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "highlight": {
+          "type": "boolean"
+        },
+        "center": {
+          "$ref": "#/$defs/vec3"
+        },
+        "radius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "callout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "xPct",
+        "yPct"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 3
+        },
+        "xPct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "yPct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "typedSceneVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "scene"
+      ],
+      "properties": {
+        "kind": {
+          "const": "typedScene"
+        },
+        "scene": {
+          "$ref": "#/$defs/visual"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "callouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/callout"
+          }
+        }
+      }
+    },
+    "imageVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "mediaType",
+        "data",
+        "altText",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "kind": {
+          "const": "image"
+        },
+        "mediaType": {
+          "enum": [
+            "image/png",
+            "image/jpeg"
+          ]
+        },
+        "data": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        },
+        "altText": {
+          "type": "string",
+          "minLength": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "caption": {
+          "type": "string"
+        },
+        "callouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/callout"
+          }
+        }
+      }
+    },
+    "panelVisual": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "typedScene",
+            "image"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "typedScene"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/typedSceneVisual"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "image"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/imageVisual"
+          }
+        }
+      ]
+    },
+    "pairVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "panels"
+      ],
+      "properties": {
+        "kind": {
+          "const": "pair"
+        },
+        "altText": {
+          "type": "string"
+        },
+        "panels": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/panelVisual"
+          }
+        }
+      }
+    },
+    "itemVisual": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "typedScene",
+            "image",
+            "pair"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "typedScene"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/typedSceneVisual"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "image"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/imageVisual"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "pair"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/pairVisual"
+          }
+        }
+      ]
+    },
+    "choiceOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "singleChoiceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "prompt",
+        "options",
+        "correctOptionId",
+        "explanation"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "displaySeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "type": {
+          "const": "singleChoice"
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visual": {
+          "$ref": "#/$defs/itemVisual"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/choiceOption"
+          }
+        },
+        "correctOptionId": {
+          "$ref": "#/$defs/id"
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "trueFalseItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "visual",
+        "statement",
+        "answer",
+        "explanation"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "displaySeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "type": {
+          "const": "trueFalse"
+        },
+        "visual": {
+          "$ref": "#/$defs/itemVisual"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer": {
+          "type": "boolean"
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "matchingItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "visual",
+        "prompts",
+        "options",
+        "answers"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "displaySeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "type": {
+          "const": "matching"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "visual": {
+          "$ref": "#/$defs/itemVisual"
+        },
+        "prompts": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 3
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "answers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "explanation": {
+          "type": "string"
+        }
+      }
+    },
+    "recallItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "responseMode",
+        "prompt"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "displaySeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "type": {
+          "const": "recall"
+        },
+        "responseMode": {
+          "enum": [
+            "written",
+            "sketch"
+          ]
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visual": {
+          "$ref": "#/$defs/itemVisual"
+        },
+        "referenceVisual": {
+          "$ref": "#/$defs/itemVisual"
+        },
+        "modelAnswer": {
+          "type": "string"
+        },
+        "keyPoints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "quickCheckItem": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "singleChoice",
+            "trueFalse",
+            "matching",
+            "recall"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "singleChoice"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/singleChoiceItem"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "trueFalse"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/trueFalseItem"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "matching"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/matchingItem"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "recall"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "$ref": "#/$defs/recallItem"
+          }
+        }
+      ]
+    },
+    "quickCheckSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "instructions",
+        "feedbackMode",
+        "presentationMode",
+        "items"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instructions": {
+          "type": "string"
+        },
+        "feedbackMode": {
+          "enum": [
+            "immediate",
+            "end"
+          ]
+        },
+        "presentationMode": {
+          "enum": [
+            "standard",
+            "rapidVisual"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/quickCheckItem"
+          }
+        }
+      }
+    }
+  },
+  "description": "guided-test-file.local/v2: v1 worked problems plus optional visual rapid-check sets. At least one of problems or quickCheckSets must be non-empty."
+}

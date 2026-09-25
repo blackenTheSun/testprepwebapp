@@ -1,4 +1,4 @@
-import type { ConversionJson, FormulaJson, ProblemJson, TestFileJson } from '../contract/types';
+import type { ConversionJson, FormulaJson, ProblemJson, QuickCheckSetJson, TestFileJson } from '../contract/types';
 import {
   type ActionGroup,
   BasicMathOperation,
@@ -98,6 +98,11 @@ export class TestFile {
 
   get title(): string {
     return this.json.title;
+  }
+
+  /** v2 quick-check sets, in file order (empty for v1 files). */
+  get quickCheckSets(): QuickCheckSetJson[] {
+    return this.json.quickCheckSets ?? [];
   }
 
   formula(id: string): FormulaJson | undefined {
